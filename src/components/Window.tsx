@@ -50,7 +50,7 @@ export const Window = ({
     return (
         <div
             className={
-                "absolute z-0 ml-auto mr-auto font-main border-t-white border-l-white border-2 flex flex-col"
+                "lg:absolute z-10 lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden"
             }
             ref={elementRef}
             onMouseDown={onMouseDown}
@@ -66,8 +66,8 @@ export const Window = ({
                     <span>X</span>
                 </a>
             </div>
-            <div className="flex flex-col bg-window font-main p-2 w-full">
-                <div className="flex gap-5 border border-r-white border-b-white p-1 pt-0 pb-0 text-xl">
+            <div className="flex flex-col bg-window font-main p-2 w-full h-full">
+                <div className="flex gap-5 border border-r-white border-b-white p-1 pt-0 pb-0 mb-2 text-xl">
                     {(() => {
                         const tabs = [
                             "Education",
@@ -88,7 +88,7 @@ export const Window = ({
                         ));
                     })()}
                 </div>
-                {children}
+                <div className="overflow-y-scroll pb-10">{children}</div>
             </div>
         </div>
     );

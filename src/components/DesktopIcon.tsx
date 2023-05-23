@@ -31,7 +31,7 @@ export const DesktopIcon = ({
                 src={icon}
                 alt={name}
                 className="w-14 h-14 cursor-pointer hover:opacity-50"
-                onMouseDown={onClick}
+                onClick={onClick}
             />
             <p className="text-white text-xl">{name}</p>
         </div>

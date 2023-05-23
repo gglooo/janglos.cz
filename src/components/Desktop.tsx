@@ -2,8 +2,18 @@ import React, { useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
 import { useDrop } from "react-dnd";
 import Window from "./Window";
+import Education from "./Education";
+import About from "./About";
+import Projects from "./Projects";
+import { ContentType } from "../types/ContentType";
 
 export const Desktop = () => {
+    const windowComponents = {
+        Education: Education,
+        "About me": About,
+        Projects: Projects,
+    };
+
     const [isTrashEmpty, setIsTrashEmpty] = useState(true);
     const [{ isOver }, drop] = useDrop(
         () => ({
@@ -18,13 +28,13 @@ export const Desktop = () => {
     const [windows, setWindows] = useState<
         {
             id: number;
-            title: string;
+            title: ContentType;
             initialPosition: { x: number; y: number };
         }[]
     >([]);
 
     const createWindow = (
-        title: string,
+        title: ContentType,
         initialPosition: { x: number; y: number }
     ) => {
         const newWindow = {
@@ -47,7 +57,7 @@ export const Desktop = () => {
             <img
                 src="src/assets/wallpaper.png"
                 alt="wallpaper"
-                className="absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none"
+                className="absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
             <DesktopIcon
                 icon={
@@ -98,7 +108,9 @@ export const Desktop = () => {
                     title={window.title}
                     onClose={() => closeWindow(window.id)}
                     initialPosition={window.initialPosition}
-                ></Window>
+                >
+                    {windowComponents[window.title]()}
+                </Window>
             ))}
         </div>
     );
