@@ -14,6 +14,7 @@ export const Window = ({
     initialPosition,
 }: WindowProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [zIndex, setZIndex] = useState(10);
     const elementRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -28,6 +29,7 @@ export const Window = ({
 
     const onMouseDown = useCallback(
         (event: any) => {
+            setZIndex((prev) => prev + 1);
             const onMouseMove = (event: MouseEvent) => {
                 position.x += event.movementX;
                 position.y += event.movementY;
@@ -49,13 +51,13 @@ export const Window = ({
 
     return (
         <div
-            className={
-                "lg:absolute z-10 lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden"
-            }
+            className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
             ref={elementRef}
-            onMouseDown={onMouseDown}
         >
-            <div className="bg-blue w-full border-b border-b-black text-left flex items-center">
+            <div
+                className="bg-blue w-full border-b border-b-black text-left flex items-center"
+                onMouseDown={onMouseDown}
+            >
                 <h1 className="text-xl text-white mr-4 ml-2 select-none">
                     {title}
                 </h1>
@@ -67,7 +69,7 @@ export const Window = ({
                 </a>
             </div>
             <div className="flex flex-col bg-window font-main p-2 w-full h-full">
-                <div className="flex gap-5 border border-r-white border-b-white p-1 pt-0 pb-0 mb-2 text-xl">
+                <div className="flex gap-5 border border-r-white border-b-white p-1 pt-0 pb-0 mb-3 text-xl select-none">
                     {(() => {
                         const tabs = [
                             "Education",

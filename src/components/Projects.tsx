@@ -7,8 +7,8 @@ export const Projects = () => {
             title: "Project manager desktop app",
             stack: ["C#", "MongoDB", "Avalonia", "Git"],
             description:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam elementum urna ac arcu sodales aliquam.",
-            image: "project1.jpg",
+                "A school project – you can create your own unique projects, invite others to collaborate, assign tasks to them and manage the progress of the project all in one place.",
+            image: "pv178.png",
         },
         {
             title: "Web quiz application",
@@ -22,15 +22,15 @@ export const Projects = () => {
                 "Docker",
             ],
             description:
-                "Nulla gravida scelerisque nulla in dapibus. Nulla tincidunt libero in felis congue aliquam.",
-            image: "project2.jpg",
+                "Project in a team of 4 people – Kahoot clone. I contributed to both frontend and backend parts of this project. I really cherish the experience I gained with using websockets, as it was something I had never done before.",
+            image: "brainbyte.png",
         },
         {
-            title: "Work portfolio",
+            title: "Steel structures portfolio",
             stack: ["PHP", "HTML", "CSS", "Python"],
             description:
-                "Fusce eget purus eleifend, malesuada lectus id, tincidunt ipsum. Integer iaculis mauris ut risus ullamcorper iaculis.",
-            image: "project3.jpg",
+                "One of my first projects – I created a website for a customer, which displays models of steel structures. It was mainly focused on the ease of adding new content to the website which I achieved by dynamically generating the content from a filesystem. I also created a script in Python which translated important IFC data into a json.",
+            image: "karlos.png",
         },
     ];
 
