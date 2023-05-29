@@ -1,4 +1,6 @@
+import { is } from "date-fns/locale";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Rnd } from "react-rnd";
 
 interface WindowProps {
     children?: React.ReactNode;
@@ -13,51 +15,28 @@ export const Window = ({
     onClose,
     initialPosition,
 }: WindowProps) => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
     const [zIndex, setZIndex] = useState(10);
-    const elementRef = useRef<HTMLDivElement>(null);
+    const isMobile = window.innerWidth <= 768;
 
-    useEffect(() => {
-        const { x, y } = initialPosition;
-        const windowElement = elementRef.current;
-
-        if (windowElement) {
-            windowElement.style.left = `${x}px`;
-            windowElement.style.top = `${y}px`;
-        }
-    }, [position]);
-
-    const onMouseDown = useCallback(
-        (event: any) => {
-            setZIndex((prev) => prev + 1);
-            const onMouseMove = (event: MouseEvent) => {
-                position.x += event.movementX;
-                position.y += event.movementY;
-                const element = elementRef.current;
-                if (element) {
-                    element.style.transform = `translate(${position.x}px, ${position.y}px)`;
-                }
-                setPosition(position);
-            };
-            const onMouseUp = () => {
-                document.removeEventListener("mousemove", onMouseMove);
-                document.removeEventListener("mouseup", onMouseUp);
-            };
-            document.addEventListener("mousemove", onMouseMove);
-            document.addEventListener("mouseup", onMouseUp);
-        },
-        [position, setPosition, elementRef]
-    );
-
-    return (
+    const WrapperElement = isMobile ? (
+        <Rnd
+            default={{
+                x: initialPosition.x,
+                y: initialPosition.y,
+                width: 800,
+                height: 800,
+            }}
+            className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
+        />
+    ) : (
         <div
             className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
-            ref={elementRef}
-        >
-            <div
-                className="bg-blue w-full border-b border-b-black text-left flex items-center"
-                onMouseDown={onMouseDown}
-            >
+        ></div>
+    );
+
+    const content = (
+        <>
+            <div className="bg-blue w-full border-b border-b-black text-left flex items-center">
                 <h1 className="text-xl text-white mr-4 ml-2 select-none">
                     {title}
                 </h1>
@@ -73,7 +52,7 @@ export const Window = ({
                     {(() => {
                         const tabs = [
                             "Education",
-                            "About me",
+                            "About\u00A0me",
                             "Projects",
                             "Experience",
                         ];
@@ -90,8 +69,30 @@ export const Window = ({
                         ));
                     })()}
                 </div>
-                <div className="overflow-y-scroll pb-10">{children}</div>
+                <div className="overflow-auto pb-10">{children}</div>
             </div>
+        </>
+    );
+
+    return !isMobile ? (
+        <Rnd
+            default={{
+                x: initialPosition.x,
+                y: initialPosition.y,
+                width: 1000,
+                height: 700,
+            }}
+            minHeight={80}
+            minWidth={700}
+            className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
+        >
+            {content}
+        </Rnd>
+    ) : (
+        <div
+            className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
+        >
+            {content}
         </div>
     );
 };

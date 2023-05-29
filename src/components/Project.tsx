@@ -11,6 +11,11 @@ interface ProjectProps {
 
 export const Project = ({ project }: ProjectProps) => {
     const [showModal, setShowModal] = useState(false);
+    const [showFullDescription, setShowFullDescription] = useState(false);
+
+    const toggleDescription = () => {
+        setShowFullDescription((prevState) => !prevState);
+    };
 
     const openModal = () => {
         setShowModal(true);
@@ -26,7 +31,7 @@ export const Project = ({ project }: ProjectProps) => {
                     <img
                         src={"src/assets/" + project.image}
                         alt={project.title}
-                        className="w-full rounded-lg mb-4"
+                        className="w-full rounded-lg mb-4 cursor-pointer"
                         onClick={openModal}
                     />
                     {showModal && (
@@ -59,8 +64,16 @@ export const Project = ({ project }: ProjectProps) => {
                     ))}
                 </div>
                 <p className="text-gray-800 text-lg mt-2">
-                    {project.description}
+                    {showFullDescription
+                        ? project.description
+                        : project.description.slice(0, 100) + "..."}
                 </p>
+                <button
+                    className="text-grey mt-2 underline focus:outline-none"
+                    onClick={toggleDescription}
+                >
+                    {showFullDescription ? "View Less" : "View More"}
+                </button>
             </div>
         </div>
     );
