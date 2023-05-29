@@ -41,6 +41,7 @@ export const Window = ({
                     {(() => {
                         return ContentTypes.map((tab) => (
                             <h2
+                                key={tab}
                                 className={
                                     (title == tab ? "underline" : "") +
                                     " first-letter:underline"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
 import { useDrop } from "react-dnd";
 import Window from "./Window";
@@ -12,16 +12,18 @@ import { WeatherResponse } from "../types/WeatherResponse";
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
     const [isTrashEmpty, setIsTrashEmpty] = useState(true);
+
     const [{ isOver }, drop] = useDrop(
         () => ({
-            accept: "normal",
-            drop: () => console.log("asd"),
+            accept: ["normal", "trash"],
+            drop: (item) => console.log(item),
             collect: (monitor) => ({
                 isOver: !!monitor.isOver(),
             }),
         }),
         []
     );
+
     const [windows, setWindows] = useState<
         {
             id: number;
@@ -55,7 +57,7 @@ export const Desktop = () => {
         initialPosition: { x: number; y: number }
     ) => {
         const newWindow = {
-            id: 1,
+            id: windows.length,
             title,
             initialPosition,
         };
@@ -63,7 +65,14 @@ export const Desktop = () => {
     };
 
     const closeWindow = (id: number) => {
-        setWindows(windows.filter((window) => window.id !== id));
+        setWindows(
+            windows
+                .filter((window) => window.id !== id)
+                .map((window, i) => {
+                    window.id = i;
+                    return window;
+                })
+        );
     };
 
     const desktopIcons: { icon: string; name: ContentType }[] = [
@@ -105,7 +114,7 @@ export const Desktop = () => {
                 type="trash"
                 onClick={() => console.log()}
             />
-            {desktopIcons.map((icon) => (
+            {desktopIcons.map((icon, i) => (
                 <DesktopIcon
                     icon={"src/assets/" + icon.icon}
                     name={icon.name}
@@ -116,6 +125,7 @@ export const Desktop = () => {
                             y: event.clientY,
                         });
                     }}
+                    key={i}
                 />
             ))}
             {windows.map((window) => (
