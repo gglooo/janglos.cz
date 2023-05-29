@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
 import { useDrop } from "react-dnd";
 import Window from "./Window";
@@ -6,14 +6,11 @@ import Education from "./Education";
 import About from "./About";
 import Projects from "./Projects";
 import { ContentType } from "../types/ContentType";
+import Weather from "./Weather";
+import { WeatherResponse } from "../types/WeatherResponse";
 
 export const Desktop = () => {
-    const windowComponents = {
-        Education: Education,
-        "About me": About,
-        Projects: Projects,
-    };
-
+    const [weather, setWeather] = useState<WeatherResponse | null>(null);
     const [isTrashEmpty, setIsTrashEmpty] = useState(true);
     const [{ isOver }, drop] = useDrop(
         () => ({
@@ -33,6 +30,26 @@ export const Desktop = () => {
         }[]
     >([]);
 
+    useEffect(() => {
+        fetch(
+            "https://api.weatherapi.com/v1/current.json?q=Brno&key=" +
+                import.meta.env.VITE_WEATHER_API_KEY
+        )
+            .then((response) => response.json())
+            .then((data) => setWeather(data));
+    }, []);
+
+    if (!weather) {
+        return;
+    }
+
+    const windowComponents = {
+        Education: Education,
+        "About\u00A0me": About,
+        Projects: Projects,
+        Weather: () => Weather(weather!),
+    };
+
     const createWindow = (
         title: ContentType,
         initialPosition: { x: number; y: number }
@@ -48,6 +65,25 @@ export const Desktop = () => {
     const closeWindow = (id: number) => {
         setWindows(windows.filter((window) => window.id !== id));
     };
+
+    const desktopIcons: { icon: string; name: ContentType }[] = [
+        {
+            icon: "education.png",
+            name: "Education",
+        },
+        {
+            icon: "globe.png",
+            name: "About\u00A0me",
+        },
+        {
+            icon: "projects.png",
+            name: "Projects",
+        },
+        {
+            icon: "weather.png",
+            name: "Weather",
+        },
+    ];
 
     return (
         <div
@@ -69,39 +105,19 @@ export const Desktop = () => {
                 type="trash"
                 onClick={() => console.log()}
             />
-            <DesktopIcon
-                icon="src/assets/education.png"
-                name="Education"
-                type="normal"
-                onClick={(event) => {
-                    createWindow("Education", {
-                        x: event.clientX,
-                        y: event.clientY,
-                    });
-                }}
-            />
-            <DesktopIcon
-                icon="src/assets/globe.png"
-                name="About me"
-                type="normal"
-                onClick={(event) => {
-                    createWindow("About me", {
-                        x: event.clientX,
-                        y: event.clientY,
-                    });
-                }}
-            />
-            <DesktopIcon
-                icon="src/assets/projects.png"
-                name="Projects"
-                type="normal"
-                onClick={(event) => {
-                    createWindow("Projects", {
-                        x: event.clientX,
-                        y: event.clientY,
-                    });
-                }}
-            />
+            {desktopIcons.map((icon) => (
+                <DesktopIcon
+                    icon={"src/assets/" + icon.icon}
+                    name={icon.name}
+                    type="normal"
+                    onClick={(event) => {
+                        createWindow(icon.name, {
+                            x: event.clientX,
+                            y: event.clientY,
+                        });
+                    }}
+                />
+            ))}
             {windows.map((window) => (
                 <Window
                     key={window.id}
