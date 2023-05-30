@@ -1,11 +1,12 @@
 import React, { SyntheticEvent } from "react";
-import { useDrag, DragPreviewImage } from "react-dnd";
+import { useDrag } from "react-dnd";
 import { IconType } from "../models/IconType";
 
 interface DesktopIconProps {
     icon: string;
     name: string;
     type: IconType;
+    index: number;
     onClick: (event: any) => void;
 }
 
@@ -13,34 +14,32 @@ export const DesktopIcon = ({
     icon,
     name,
     type,
+    index,
     onClick,
 }: DesktopIconProps) => {
-    const [{ isDragging }, drag, preview] = useDrag(() => ({
+    const [{ isDragging }, drag] = useDrag(() => ({
         type: type,
-        item: { id: "12" },
+        item: { index: index },
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
     }));
 
     return (
-        <>
-            <DragPreviewImage connect={preview} src={icon} />
-            <div
-                className={
-                    "flex flex-col items-center font-main justify-center" +
-                    (isDragging ? " invisible" : "")
-                }
+        <div
+            className={
+                "flex flex-col items-center font-main justify-center" +
+                (isDragging ? " invisible" : "")
+            }
+        >
+            <img
+                src={icon}
+                alt={name}
+                className={"w-14 h-14 cursor-pointer hover:opacity-50"}
+                onClick={onClick}
                 ref={drag}
-            >
-                <img
-                    src={icon}
-                    alt={name}
-                    className={"w-14 h-14 cursor-pointer hover:opacity-50"}
-                    onClick={onClick}
-                />
-                <p className="text-white text-xl">{name}</p>
-            </div>
-        </>
+            />
+            <p className="text-white text-xl">{name}</p>
+        </div>
     );
 };

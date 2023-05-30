@@ -8,22 +8,12 @@ import Projects from "./Projects";
 import { ContentType } from "../types/ContentType";
 import Weather from "./Weather";
 import { WeatherResponse } from "../types/WeatherResponse";
+import { IconPlace } from "./IconPlace";
+import { IconType } from "../models/IconType";
+import Bin from "./Bin";
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
-    const [isTrashEmpty, setIsTrashEmpty] = useState(true);
-
-    const [{ isOver }, drop] = useDrop(
-        () => ({
-            accept: ["normal", "trash"],
-            drop: (item) => console.log(item),
-            collect: (monitor) => ({
-                isOver: !!monitor.isOver(),
-            }),
-        }),
-        []
-    );
-
     const [windows, setWindows] = useState<
         {
             id: number;
@@ -31,6 +21,29 @@ export const Desktop = () => {
             initialPosition: { x: number; y: number };
         }[]
     >([]);
+
+    const swap = (from: number, to: number) => {
+        setDesktop((desktop) => {
+            const indices = desktop.map((elem) => elem.props.index);
+
+            const fromElementIndex = indices.findIndex((i) => i === from);
+            const toElementIndex = indices.findIndex((i) => i === to);
+
+            // bin will always be at index 0
+            if (to == 0) {
+                console.log(desktop[toElementIndex]);
+                desktop[toElementIndex].props.children[0].props!.onDrag();
+                return desktop;
+            }
+
+            const newDesktop = [...desktop];
+            const temp = newDesktop[fromElementIndex];
+            newDesktop[fromElementIndex] = newDesktop[toElementIndex];
+            newDesktop[toElementIndex] = temp;
+
+            return newDesktop;
+        });
+    };
 
     useEffect(() => {
         fetch(
@@ -41,10 +54,6 @@ export const Desktop = () => {
             .then((data) => setWeather(data));
     }, []);
 
-    if (!weather) {
-        return;
-    }
-
     const windowComponents = {
         Education: Education,
         "About\u00A0me": About,
@@ -52,82 +61,66 @@ export const Desktop = () => {
         Weather: () => Weather(weather!),
     };
 
-    const createWindow = (
-        title: ContentType,
-        initialPosition: { x: number; y: number }
-    ) => {
-        const newWindow = {
-            id: windows.length,
-            title,
-            initialPosition,
-        };
-        setWindows([...windows, newWindow]);
+    const createWindow = (newWindow: {
+        id: number;
+        title: ContentType;
+        initialPosition: { x: number; y: number };
+    }) => {
+        setWindows((windows) => [...windows, newWindow]);
     };
 
     const closeWindow = (id: number) => {
-        setWindows(
-            windows
-                .filter((window) => window.id !== id)
-                .map((window, i) => {
-                    window.id = i;
-                    return window;
-                })
-        );
+        setWindows(windows.filter((window) => window.id !== id));
     };
 
-    const desktopIcons: { icon: string; name: ContentType }[] = [
-        {
-            icon: "education.png",
-            name: "Education",
-        },
-        {
-            icon: "globe.png",
-            name: "About\u00A0me",
-        },
-        {
-            icon: "projects.png",
-            name: "Projects",
-        },
-        {
-            icon: "weather.png",
-            name: "Weather",
-        },
-    ];
+    let icons = [<Bin swap={swap} key={0} index={0} />];
+    console.log(icons);
+    icons = icons.concat(
+        desktopIcons.map((icon, i) => (
+            <IconPlace key={i + 1} index={i + 1} move={swap}>
+                <DesktopIcon
+                    icon={"src/assets/" + icon.icon}
+                    name={icon.name}
+                    type={icon.type ?? "normal"}
+                    onClick={(event) => {
+                        // since these windows are created by the user's click, it should be
+                        // safe to use the timestamp as the id/key.
+                        createWindow({
+                            id: event.timeStamp,
+                            title: icon.name,
+                            initialPosition: {
+                                x: event.clientX,
+                                y: event.clientY,
+                            },
+                        });
+                    }}
+                    index={i + 1}
+                    key={i + 1}
+                />
+            </IconPlace>
+        ))
+    );
+
+    const maxCells = 6 * 12;
+
+    for (let i = icons.length; i < maxCells; i++) {
+        icons.push(<IconPlace key={i} index={i} move={swap}></IconPlace>);
+    }
+
+    const [desktop, setDesktop] = useState(icons);
+
+    if (!weather) {
+        return;
+    }
 
     return (
-        <div
-            className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 grid-rows-6 pt-2"
-            ref={drop}
-        >
+        <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 grid-rows-6 pt-2">
             <img
                 src="src/assets/wallpaper.png"
                 alt="wallpaper"
                 className="absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
-            <DesktopIcon
-                icon={
-                    "src/assets/" +
-                    (isTrashEmpty ? "empty" : "full") +
-                    "_bin.png"
-                }
-                name="Trash"
-                type="trash"
-                onClick={() => console.log()}
-            />
-            {desktopIcons.map((icon, i) => (
-                <DesktopIcon
-                    icon={"src/assets/" + icon.icon}
-                    name={icon.name}
-                    type="normal"
-                    onClick={(event) => {
-                        createWindow(icon.name, {
-                            x: event.clientX,
-                            y: event.clientY,
-                        });
-                    }}
-                    key={i}
-                />
-            ))}
+            {desktop}
             {windows.map((window) => (
                 <Window
                     key={window.id}
@@ -141,6 +134,30 @@ export const Desktop = () => {
         </div>
     );
 };
+
+const desktopIcons: {
+    icon: string;
+    name: ContentType;
+    type?: IconType;
+    onClick?: VoidFunction;
+}[] = [
+    {
+        icon: "education.png",
+        name: "Education",
+    },
+    {
+        icon: "globe.png",
+        name: "About\u00A0me",
+    },
+    {
+        icon: "projects.png",
+        name: "Projects",
+    },
+    {
+        icon: "weather.png",
+        name: "Weather",
+    },
+];
 
 const placeIcon = (icon: JSX.Element) => {
     icon.props.className =
