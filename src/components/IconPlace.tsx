@@ -1,9 +1,9 @@
 import { useDrop } from "react-dnd";
 
 interface IconPlaceProps {
-    index: number;
+    index: string;
     children?: React.ReactNode;
-    move: (from: number, to: number) => void;
+    move: (from: string, to: string) => void;
     onDrag?: () => void;
 }
 
@@ -19,7 +19,7 @@ export const IconPlace = ({
             canDrop: () => {
                 return true;
             },
-            drop: (item: { index: number }) => {
+            drop: (item: { index: string }) => {
                 move(item.index, index);
             },
             collect: (monitor) => ({

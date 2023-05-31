@@ -6,7 +6,7 @@ interface DesktopIconProps {
     icon: string;
     name: string;
     type: IconType;
-    index: number;
+    index: string;
     onClick: (event: any) => void;
 }
 
@@ -19,7 +19,7 @@ export const DesktopIcon = ({
 }: DesktopIconProps) => {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: type,
-        item: { index: index },
+        item: { index: index.toString() },
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),

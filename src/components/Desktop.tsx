@@ -11,6 +11,9 @@ import { WeatherResponse } from "../types/WeatherResponse";
 import { IconPlace } from "./IconPlace";
 import { IconType } from "../models/IconType";
 import Bin from "./Bin";
+import { trashContentAtom } from "../atoms/TrashContentAtom";
+import { useRecoilState } from "recoil";
+import { v4 as uuidv4 } from "uuid";
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
@@ -21,22 +24,31 @@ export const Desktop = () => {
             initialPosition: { x: number; y: number };
         }[]
     >([]);
+    const [trashContent, setTrashContent] = useRecoilState(trashContentAtom);
 
-    const swap = (from: number, to: number) => {
+    const swap = (from: string, to: string) => {
         setDesktop((desktop) => {
             const indices = desktop.map((elem) => elem.props.index);
 
             const fromElementIndex = indices.findIndex((i) => i === from);
             const toElementIndex = indices.findIndex((i) => i === to);
 
-            // bin will always be at index 0
-            if (to == 0) {
-                console.log(desktop[toElementIndex]);
-                desktop[toElementIndex].props.children[0].props!.onDrag();
-                return desktop;
+            const newDesktop = [...desktop];
+
+            // handle bin, bin will always be index 0
+            if (to == "0" && from != "0") {
+                setTrashContent((trashContent) => [
+                    ...trashContent,
+                    newDesktop[fromElementIndex],
+                ]);
+
+                const uuid = uuidv4();
+                newDesktop[fromElementIndex] = (
+                    <IconPlace key={uuid} index={uuid} move={swap} />
+                );
+                return newDesktop;
             }
 
-            const newDesktop = [...desktop];
             const temp = newDesktop[fromElementIndex];
             newDesktop[fromElementIndex] = newDesktop[toElementIndex];
             newDesktop[toElementIndex] = temp;
@@ -73,38 +85,50 @@ export const Desktop = () => {
         setWindows(windows.filter((window) => window.id !== id));
     };
 
-    let icons = [<Bin swap={swap} key={0} index={0} />];
-    console.log(icons);
+    const onTrashClick = () => {
+        setTrashContent((trashContent) => {
+            setDesktop((desktop) => placeFromBin(trashContent, desktop));
+            return [];
+        });
+    };
+
+    let icons = [
+        <Bin swap={swap} key={"0"} index={"0"} onClick={onTrashClick} />,
+    ];
     icons = icons.concat(
-        desktopIcons.map((icon, i) => (
-            <IconPlace key={i + 1} index={i + 1} move={swap}>
-                <DesktopIcon
-                    icon={"src/assets/" + icon.icon}
-                    name={icon.name}
-                    type={icon.type ?? "normal"}
-                    onClick={(event) => {
-                        // since these windows are created by the user's click, it should be
-                        // safe to use the timestamp as the id/key.
-                        createWindow({
-                            id: event.timeStamp,
-                            title: icon.name,
-                            initialPosition: {
-                                x: event.clientX,
-                                y: event.clientY,
-                            },
-                        });
-                    }}
-                    index={i + 1}
-                    key={i + 1}
-                />
-            </IconPlace>
-        ))
+        desktopIcons.map((icon, i) => {
+            const id = uuidv4();
+            return (
+                <IconPlace key={id} index={id} move={swap}>
+                    <DesktopIcon
+                        icon={"src/assets/" + icon.icon}
+                        name={icon.name}
+                        type={icon.type ?? "normal"}
+                        onClick={(event) => {
+                            // since these windows are created by the user's click, it should be
+                            // safe to use the timestamp as the id/key.
+                            createWindow({
+                                id: event.timeStamp,
+                                title: icon.name,
+                                initialPosition: {
+                                    x: event.clientX,
+                                    y: event.clientY,
+                                },
+                            });
+                        }}
+                        index={id}
+                        key={id}
+                    />
+                </IconPlace>
+            );
+        })
     );
 
     const maxCells = 6 * 12;
 
     for (let i = icons.length; i < maxCells; i++) {
-        icons.push(<IconPlace key={i} index={i} move={swap}></IconPlace>);
+        const id = uuidv4();
+        icons.push(<IconPlace key={id} index={id} move={swap}></IconPlace>);
     }
 
     const [desktop, setDesktop] = useState(icons);
@@ -163,6 +187,29 @@ const placeIcon = (icon: JSX.Element) => {
     icon.props.className =
         "absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96";
     return;
+};
+
+const placeFromBin = (trashContent: JSX.Element[], desktop: JSX.Element[]) => {
+    const newDesktop = [];
+    let trashIndex = 0;
+
+    console.log(desktop.map((elem) => elem.props.index));
+
+    for (let i = 0; i < desktop.length; i++) {
+        if (
+            desktop[i].props.children === undefined &&
+            trashContent.length > trashIndex &&
+            // dont overwrite the bin
+            desktop[i].props.index !== "0"
+        ) {
+            newDesktop.push(trashContent[trashIndex++]);
+        } else {
+            newDesktop.push(desktop[i]);
+        }
+    }
+
+    // console.log(newDesktop.map((elem) => elem.props.index));
+    return newDesktop;
 };
 
 export default Desktop;
