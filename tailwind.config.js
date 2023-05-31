@@ -2,7 +2,20 @@
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
-        extend: {},
+        extend: {
+            gridTemplateRows: {
+                // Simple 8 row grid
+                8: "repeat(8, minmax(0, 1fr))",
+                10: "repeat(10, minmax(0, 1fr))",
+                12: "repeat(12, minmax(0, 1fr))",
+                14: "repeat(14, minmax(0, 1fr))",
+                16: "repeat(16, minmax(0, 1fr))",
+            },
+            gridTemplateColumns: {
+                14: "repeat(14, minmax(0, 1fr))",
+                16: "repeat(16, minmax(0, 1fr))",
+            },
+        },
         fontFamily: {
             main: ["VT323", "monospace"],
         },

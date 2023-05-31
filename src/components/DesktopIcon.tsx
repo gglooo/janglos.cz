@@ -35,7 +35,7 @@ export const DesktopIcon = ({
             <img
                 src={icon}
                 alt={name}
-                className={"w-14 h-14 cursor-pointer hover:opacity-50"}
+                className={"w-10 h-10 cursor-pointer hover:opacity-50"}
                 onClick={onClick}
                 ref={drag}
             />

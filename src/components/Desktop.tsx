@@ -152,11 +152,11 @@ export const Desktop = () => {
     }
 
     return (
-        <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 grid-rows-6 pt-2 lg:grid-flow-col sm:grid-flow-row">
+        <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-12 md:grid-cols-14 lg:grid-cols-16 pt-2 grid-rows-6 md:grid-rows-10 lg:grid-rows-12 lg:grid-flow-col sm:grid-flow-row">
             <img
                 src={Wallpaper}
                 alt="wallpaper"
-                className="absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
+                className="fixed m-auto top-1/3 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
             {desktop}
             {windows.map((window) => (
