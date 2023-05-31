@@ -16,6 +16,15 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { openWindowsAtom } from "../atoms/OpenWindows";
 import { v4 as uuidv4 } from "uuid";
 
+import GlobeIcon from "../assets/globe.png";
+import ProjectsIcon from "../assets/projects.png";
+import WeatherIcon from "../assets/weather.png";
+import GitHubIcon from "../assets/github.png";
+import LinkedInIcon from "../assets/linkedin.png";
+import Wallpaper from "../assets/wallpaper.png";
+
+console.log(GlobeIcon);
+
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
     const [windows, setWindows] = useRecoilState(openWindowsAtom);
@@ -103,7 +112,7 @@ export const Desktop = () => {
             return (
                 <IconPlace key={id} index={id} move={swap}>
                     <DesktopIcon
-                        icon={"src/assets/" + icon.icon}
+                        icon={icon.icon}
                         name={icon.name}
                         type={icon.type ?? "normal"}
                         onClick={
@@ -139,13 +148,13 @@ export const Desktop = () => {
     const [desktop, setDesktop] = useState(icons);
 
     if (!weather) {
-        return <></>;
+        return <div className="bg-desktop"></div>;
     }
 
     return (
         <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 grid-rows-6 pt-2 lg:grid-flow-col sm:grid-flow-row">
             <img
-                src="src/assets/wallpaper.png"
+                src={Wallpaper}
                 alt="wallpaper"
                 className="absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
@@ -171,25 +180,25 @@ const desktopIcons: {
     onClick?: VoidFunction;
 }[] = [
     {
-        icon: "globe.png",
+        icon: GlobeIcon,
         name: "About\u00A0me",
     },
     {
-        icon: "projects.png",
+        icon: ProjectsIcon,
         name: "Projects",
     },
     {
-        icon: "weather.png",
+        icon: WeatherIcon,
         name: "Weather",
     },
     {
-        icon: "github.png",
+        icon: GitHubIcon,
         name: "GitHub",
         type: "link",
         onClick: () => window.open("https://github.com/gglooo"),
     },
     {
-        icon: "linkedin.png",
+        icon: LinkedInIcon,
         name: "LinkedIn",
         type: "link",
         onClick: () =>

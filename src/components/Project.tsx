@@ -29,7 +29,7 @@ export const Project = ({ project }: ProjectProps) => {
             {project.image && (
                 <div>
                     <img
-                        src={"src/assets/" + project.image}
+                        src={project.image}
                         alt={project.title}
                         className="w-full rounded-lg mb-4 cursor-pointer"
                         onClick={openModal}
@@ -42,7 +42,7 @@ export const Project = ({ project }: ProjectProps) => {
                             />
                             <div className="max-w-6xl p-2 bg-white z-10">
                                 <img
-                                    src={"src/assets/" + project.image}
+                                    src={project.image}
                                     alt={project.title}
                                     className="w-full rounded-lg"
                                 />

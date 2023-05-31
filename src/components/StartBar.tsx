@@ -3,6 +3,7 @@ import { useRecoilValue } from "recoil";
 import StartItem from "./StartItem";
 import { useDate } from "../hooks/useDate";
 import { format } from "date-fns";
+import StartIcon from "../assets/start.png";
 
 export const StartBar = () => {
     const openWindows = useRecoilValue(openWindowsAtom);
@@ -11,7 +12,9 @@ export const StartBar = () => {
 
     return (
         <div className="w-full h-8 bg-window text-black flex flex-row items-center gap-2 p-2">
-            <img src="src/assets/start.png" width={60} className="ml-0"></img>
+            <a href=".">
+                <img src={StartIcon} width={60} className="ml-0"></img>
+            </a>
             {openWindows.map((window) => (
                 <StartItem key={window.id} title={window.title} />
             ))}

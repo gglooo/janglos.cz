@@ -1,5 +1,8 @@
 import React from "react";
 import Project from "./Project";
+import pv178 from "../assets/pv178.png";
+import brainbyte from "../assets/brainbyte.png";
+import karlos from "../assets/karlos.png";
 
 export const Projects = () => {
     const projects = [
@@ -8,7 +11,7 @@ export const Projects = () => {
             stack: ["C#", "MongoDB", "Avalonia", "Git"],
             description:
                 "A school project – you can create your own unique projects, invite others to collaborate, assign tasks to them and manage the progress of the project all in one place.",
-            image: "pv178.png",
+            image: pv178,
         },
         {
             title: "Web quiz application",
@@ -23,14 +26,14 @@ export const Projects = () => {
             ],
             description:
                 "Project in a team of 4 people – Kahoot clone. I contributed to both frontend and backend parts of this project. I really cherish the experience I gained with using websockets, as it was something I had never done before.",
-            image: "brainbyte.png",
+            image: brainbyte,
         },
         {
             title: "Steel structures portfolio",
             stack: ["PHP", "HTML", "CSS", "Python"],
             description:
                 "One of my first projects – I created a website for a customer, which displays models of steel structures. It was mainly focused on the ease of adding new content to the website which I achieved by dynamically generating the content from a filesystem. I also created a script in Python which translated important IFC data into a json.",
-            image: "karlos.png",
+            image: karlos,
         },
     ];
 
