@@ -2,10 +2,8 @@ import { is } from "date-fns/locale";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import { ContentType, ContentTypes } from "../types/ContentType";
-import About from "./About";
-import Education from "./Education";
-import Projects from "./Projects";
-import Weather from "./Weather";
+import { highestZIndexAtom } from "../atoms/HighestZIndex";
+import { useRecoilState } from "recoil";
 
 interface WindowProps {
     children?: React.ReactNode;
@@ -20,8 +18,9 @@ export const Window = ({
     onClose,
     initialPosition,
 }: WindowProps) => {
-    const [zIndex, setZIndex] = useState(10);
     const isMobile = window.innerWidth <= 768;
+    const [highestZIndex, setHighestZIndex] = useRecoilState(highestZIndexAtom);
+    const [zIndex, setZIndex] = useState(highestZIndex);
 
     const content = (
         <>
@@ -36,15 +35,15 @@ export const Window = ({
                     <span>X</span>
                 </a>
             </div>
-            <div className="flex flex-col bg-window font-main p-2 w-full h-full cursor-default">
-                <div className="flex gap-5 border border-r-white border-b-white p-1 pt-0 pb-0 mb-3 text-xl select-none">
+            <div className="flex flex-col bg-window font-main p-2 w-full h-full cursor-default overflow-auto">
+                <div className="flex gap-4 border border-r-white border-b-white p-1 pt-0 pb-0 mb-3 text-xl select-none">
                     {(() => {
                         return ContentTypes.map((tab) => (
                             <h2
                                 key={tab}
                                 className={
                                     (title == tab ? "underline" : "") +
-                                    " first-letter:underline"
+                                    " first-letter:underline text-md"
                                 }
                             >
                                 {tab}
@@ -59,18 +58,6 @@ export const Window = ({
 
     const defaultSettings = {
         "About\u00A0me": {
-            default: {
-                width: 1100,
-                height: 700,
-                x: initialPosition.x,
-                y: initialPosition.y,
-            },
-            minHeight: 80,
-            minWidth: 700,
-            x: initialPosition.x,
-            y: initialPosition.y,
-        },
-        Education: {
             default: {
                 width: 1100,
                 height: 700,
@@ -100,7 +87,7 @@ export const Window = ({
                 y: initialPosition.y,
             },
             minHeight: 80,
-            minWidth: 350,
+            minWidth: 389,
             x: initialPosition.x,
             y: initialPosition.y,
         },
@@ -108,14 +95,23 @@ export const Window = ({
 
     return !isMobile ? (
         <Rnd
-            {...defaultSettings[title]}
-            className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
+            {...defaultSettings[
+                title as Exclude<ContentType, "GitHub" | "LinkedIn">
+            ]}
+            className={`lg:absolute lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
+            onMouseDown={() => {
+                setHighestZIndex((highest) => {
+                    setZIndex(highest + 10);
+                    return highest + 10;
+                });
+            }}
+            style={{ position: "absolute", zIndex }}
         >
             {content}
         </Rnd>
     ) : (
         <div
-            className={`lg:absolute z-${zIndex} lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden row-start-2`}
+            className={`fixed max-h-[80%] z-10 font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4  row-start-2 overflow-hidden`}
         >
             {content}
         </div>

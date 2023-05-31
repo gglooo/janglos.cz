@@ -12,19 +12,14 @@ import { IconPlace } from "./IconPlace";
 import { IconType } from "../models/IconType";
 import Bin from "./Bin";
 import { trashContentAtom } from "../atoms/TrashContentAtom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { openWindowsAtom } from "../atoms/OpenWindows";
 import { v4 as uuidv4 } from "uuid";
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
-    const [windows, setWindows] = useState<
-        {
-            id: number;
-            title: ContentType;
-            initialPosition: { x: number; y: number };
-        }[]
-    >([]);
-    const [trashContent, setTrashContent] = useRecoilState(trashContentAtom);
+    const [windows, setWindows] = useRecoilState(openWindowsAtom);
+    const setTrashContent = useSetRecoilState(trashContentAtom);
 
     const swap = (from: string, to: string) => {
         setDesktop((desktop) => {
@@ -62,15 +57,22 @@ export const Desktop = () => {
             "https://api.weatherapi.com/v1/current.json?q=Brno&key=" +
                 import.meta.env.VITE_WEATHER_API_KEY
         )
-            .then((response) => response.json())
-            .then((data) => setWeather(data));
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error: status ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => setWeather(data))
+            .catch((error) => console.log(error));
     }, []);
 
     const windowComponents = {
-        Education: Education,
         "About\u00A0me": About,
         Projects: Projects,
         Weather: () => Weather(weather!),
+        LinkedIn: () => <></>,
+        GitHub: () => <></>,
     };
 
     const createWindow = (newWindow: {
@@ -104,18 +106,21 @@ export const Desktop = () => {
                         icon={"src/assets/" + icon.icon}
                         name={icon.name}
                         type={icon.type ?? "normal"}
-                        onClick={(event) => {
-                            // since these windows are created by the user's click, it should be
-                            // safe to use the timestamp as the id/key.
-                            createWindow({
-                                id: event.timeStamp,
-                                title: icon.name,
-                                initialPosition: {
-                                    x: event.clientX,
-                                    y: event.clientY,
-                                },
-                            });
-                        }}
+                        onClick={
+                            icon.onClick ??
+                            ((event) => {
+                                // since these windows are created by the user's click, it should be
+                                // safe to use the timestamp as the id/key.
+                                createWindow({
+                                    id: event.timeStamp,
+                                    title: icon.name,
+                                    initialPosition: {
+                                        x: event.clientX,
+                                        y: event.clientY,
+                                    },
+                                });
+                            })
+                        }
                         index={id}
                         key={id}
                     />
@@ -134,11 +139,11 @@ export const Desktop = () => {
     const [desktop, setDesktop] = useState(icons);
 
     if (!weather) {
-        return;
+        return <></>;
     }
 
     return (
-        <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 grid-rows-6 pt-2">
+        <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 grid-rows-6 pt-2 lg:grid-flow-col sm:grid-flow-row">
             <img
                 src="src/assets/wallpaper.png"
                 alt="wallpaper"
@@ -166,10 +171,6 @@ const desktopIcons: {
     onClick?: VoidFunction;
 }[] = [
     {
-        icon: "education.png",
-        name: "Education",
-    },
-    {
         icon: "globe.png",
         name: "About\u00A0me",
     },
@@ -181,26 +182,30 @@ const desktopIcons: {
         icon: "weather.png",
         name: "Weather",
     },
+    {
+        icon: "github.png",
+        name: "GitHub",
+        type: "link",
+        onClick: () => window.open("https://github.com/gglooo"),
+    },
+    {
+        icon: "linkedin.png",
+        name: "LinkedIn",
+        type: "link",
+        onClick: () =>
+            window.open("https://www.linkedin.com/in/jan-glos-21007b202/"),
+    },
 ];
-
-const placeIcon = (icon: JSX.Element) => {
-    icon.props.className =
-        "absolute m-auto mt-52 left-0 right-0 w-60 md:w-80 lg:w-96";
-    return;
-};
 
 const placeFromBin = (trashContent: JSX.Element[], desktop: JSX.Element[]) => {
     const newDesktop = [];
     let trashIndex = 0;
 
-    console.log(desktop.map((elem) => elem.props.index));
-
     for (let i = 0; i < desktop.length; i++) {
         if (
             desktop[i].props.children === undefined &&
             trashContent.length > trashIndex &&
-            // dont overwrite the bin
-            desktop[i].props.index !== "0"
+            desktop[i].props.index !== "0" // dont overwrite the bin
         ) {
             newDesktop.push(trashContent[trashIndex++]);
         } else {
@@ -208,7 +213,6 @@ const placeFromBin = (trashContent: JSX.Element[], desktop: JSX.Element[]) => {
         }
     }
 
-    // console.log(newDesktop.map((elem) => elem.props.index));
     return newDesktop;
 };
 

@@ -1,1 +1,1 @@
-export type IconType = "normal" | "trash";
+export type IconType = "normal" | "trash" | "link";

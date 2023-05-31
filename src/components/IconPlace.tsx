@@ -15,7 +15,7 @@ export const IconPlace = ({
 }: IconPlaceProps) => {
     const [{ isOver, canDrop }, drop] = useDrop(
         () => ({
-            accept: ["normal", "trash"],
+            accept: ["normal", "trash", "link"],
             canDrop: () => {
                 return true;
             },
@@ -31,7 +31,10 @@ export const IconPlace = ({
     );
 
     return (
-        <div className="flex justify-center items-center z-10" ref={drop}>
+        <div
+            className="flex relative justify-center items-center z-10"
+            ref={drop}
+        >
             {children}
         </div>
     );
