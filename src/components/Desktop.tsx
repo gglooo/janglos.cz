@@ -64,7 +64,7 @@ export const Desktop = () => {
     useEffect(() => {
         fetch(
             "https://api.weatherapi.com/v1/current.json?q=Brno&key=" +
-                import.meta.env.VITE_WEATHER_API_KEY
+                "4429d0cf53674ceb927153811232905"
         )
             .then((response) => {
                 if (!response.ok) {
