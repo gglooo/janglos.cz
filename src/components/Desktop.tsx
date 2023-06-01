@@ -32,7 +32,7 @@ export const Desktop = () => {
     const setWindowComponents = useSetRecoilState(openWindowComponents);
     const setTrashContent = useSetRecoilState(trashContentAtom);
     const setIsMenuVisible = useSetRecoilState(iStartMenuVisible);
-    const setHighestZIndex = useSetRecoilState(highestZIndexAtom);
+    const [highestZIndex, setHighestZIndex] = useRecoilState(highestZIndexAtom);
     const [windowZIndexes, setWindowZIndexes] = useState<{
         [key: number]: number;
     }>({});
@@ -169,7 +169,7 @@ export const Desktop = () => {
             title={window.title}
             onClose={() => closeWindow(window.id)}
             initialPosition={window.initialPosition}
-            zIndex={windowZIndexes[window.id] ?? 10}
+            zIndex={windowZIndexes[window.id] ?? highestZIndex}
             onMouseDown={() => updateWindowZIndex(window.id)}
         >
             {windowComponents[window.title]()}
