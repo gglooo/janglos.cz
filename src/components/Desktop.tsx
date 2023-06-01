@@ -1,8 +1,6 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
-import { useDrop } from "react-dnd";
 import Window from "./Window";
-import Education from "./Education";
 import About from "./About";
 import Projects from "./Projects";
 import { ContentType } from "../types/ContentType";
@@ -152,7 +150,11 @@ export const Desktop = () => {
     }
 
     return (
-        <div className="bg-desktop h-full w-full grid grid-cols-4 sm:grid-cols-12 md:grid-cols-14 lg:grid-cols-16 pt-2 grid-rows-6 md:grid-rows-10 lg:grid-rows-12 lg:grid-flow-col sm:grid-flow-row">
+        <div
+            className="bg-desktop h-full w-full grid grid-cols-4
+        sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
+        md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
+        >
             <img
                 src={Wallpaper}
                 alt="wallpaper"
