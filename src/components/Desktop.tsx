@@ -13,6 +13,7 @@ import { trashContentAtom } from "../atoms/TrashContentAtom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { openWindowsAtom } from "../atoms/OpenWindows";
 import { v4 as uuidv4 } from "uuid";
+import { iStartMenuVisible } from "../atoms/StartMenuVisible";
 
 import GlobeIcon from "../assets/globe.png";
 import ProjectsIcon from "../assets/projects.png";
@@ -27,6 +28,7 @@ export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
     const [windows, setWindows] = useRecoilState(openWindowsAtom);
     const setTrashContent = useSetRecoilState(trashContentAtom);
+    const setIsMenuVisible = useSetRecoilState(iStartMenuVisible);
 
     const swap = (from: string, to: string) => {
         setDesktop((desktop) => {
@@ -151,9 +153,10 @@ export const Desktop = () => {
 
     return (
         <div
-            className="bg-desktop h-full w-full grid grid-cols-4
+            className="bg-desktop sm:pl-1 h-full w-full grid grid-cols-4
         sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
         md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
+            onClick={() => setIsMenuVisible(false)}
         >
             <img
                 src={Wallpaper}
@@ -175,7 +178,7 @@ export const Desktop = () => {
     );
 };
 
-const desktopIcons: {
+export const desktopIcons: {
     icon: string;
     name: ContentType;
     type?: IconType;

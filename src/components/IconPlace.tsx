@@ -32,7 +32,7 @@ export const IconPlace = ({
 
     return (
         <div
-            className="flex relative justify-center items-center z-10"
+            className="flex relative justify-center items-center z-10 select-none"
             ref={drop}
         >
             {children}

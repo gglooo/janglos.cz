@@ -98,7 +98,9 @@ export const Window = ({
             {...defaultSettings[
                 title as Exclude<ContentType, "GitHub" | "LinkedIn">
             ]}
-            className={`lg:absolute lg:ml-auto lg:mr-auto font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4 overflow-hidden`}
+            className={`lg:absolute lg:ml-auto lg:mr-auto font-main border-t-white border-l-white
+                border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
+                row-span-4 overflow-hidden`}
             onMouseDown={() => {
                 setHighestZIndex((highest) => {
                     setZIndex(highest + 10);
@@ -111,7 +113,10 @@ export const Window = ({
         </Rnd>
     ) : (
         <div
-            className={`fixed max-h-[80%] z-10 font-main border-t-white border-l-white border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col row-span-4  row-start-2 overflow-hidden`}
+            className={`fixed max-h-[90%] z-10 font-main border-t-white border-l-white
+            border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
+            row-span-4  row-start-2 overflow-hidden top-1/2 left-1/2
+            transform -translate-x-1/2 -translate-y-1/2`}
         >
             {content}
         </div>
