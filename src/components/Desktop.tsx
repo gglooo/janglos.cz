@@ -169,7 +169,7 @@ export const Desktop = () => {
             title={window.title}
             onClose={() => closeWindow(window.id)}
             initialPosition={window.initialPosition}
-            zIndex={windowZIndexes[window.id] ?? highestZIndex}
+            zIndex={windowZIndexes[window.id] ?? 10}
             onMouseDown={() => updateWindowZIndex(window.id)}
         >
             {windowComponents[window.title]()}
