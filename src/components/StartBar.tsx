@@ -65,7 +65,7 @@ export const StartBar = () => {
             >
                 <img src={StartIcon} width={60}></img>
             </a>
-            <div className="overflow-hidden flex flex-row max-w-full">
+            <div className="overflow-hidden flex flex-row max-w-full ml-16">
                 {openWindows.map((window) => (
                     <StartItem key={window.id} title={window.title} />
                 ))}
