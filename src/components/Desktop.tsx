@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, { SyntheticEvent, useCallback, useEffect, useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
 import Window from "./Window";
 import About from "./About";
@@ -21,14 +21,30 @@ import WeatherIcon from "../assets/weather.png";
 import GitHubIcon from "../assets/github.png";
 import LinkedInIcon from "../assets/linkedin.png";
 import Wallpaper from "../assets/wallpaper.png";
+import { openWindowComponents } from "../atoms/OpenWindowComponents";
+import { highestZIndexAtom } from "../atoms/HighestZIndex";
 
 console.log(GlobeIcon);
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
     const [windows, setWindows] = useRecoilState(openWindowsAtom);
+    const setWindowComponents = useSetRecoilState(openWindowComponents);
     const setTrashContent = useSetRecoilState(trashContentAtom);
     const setIsMenuVisible = useSetRecoilState(iStartMenuVisible);
+    const setHighestZIndex = useSetRecoilState(highestZIndexAtom);
+    const [windowZIndexes, setWindowZIndexes] = useState<{
+        [key: number]: number;
+    }>({});
+
+    const updateWindowZIndex = (windowId: number) =>
+        setHighestZIndex((highest) => {
+            setWindowZIndexes((prevZIndexes) => ({
+                ...prevZIndexes,
+                [windowId]: highest + 10,
+            }));
+            return highest + 10;
+        });
 
     const swap = (from: string, to: string) => {
         setDesktop((desktop) => {
@@ -138,7 +154,7 @@ export const Desktop = () => {
         })
     );
 
-    const maxCells = 6 * 12;
+    const maxCells = 8 * 16;
 
     for (let i = icons.length; i < maxCells; i++) {
         const id = uuidv4();
@@ -146,6 +162,23 @@ export const Desktop = () => {
     }
 
     const [desktop, setDesktop] = useState(icons);
+
+    const newWindows = windows.map((window) => (
+        <Window
+            key={window.id}
+            title={window.title}
+            onClose={() => closeWindow(window.id)}
+            initialPosition={window.initialPosition}
+            zIndex={windowZIndexes[window.id] ?? 10}
+            onMouseDown={() => updateWindowZIndex(window.id)}
+        >
+            {windowComponents[window.title]()}
+        </Window>
+    ));
+
+    useEffect(() => {
+        setWindowComponents(newWindows);
+    }, [windows]);
 
     if (!weather) {
         return <div className="bg-desktop"></div>;
@@ -164,16 +197,7 @@ export const Desktop = () => {
                 className="fixed m-auto top-1/3 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
             {desktop}
-            {windows.map((window) => (
-                <Window
-                    key={window.id}
-                    title={window.title}
-                    onClose={() => closeWindow(window.id)}
-                    initialPosition={window.initialPosition}
-                >
-                    {windowComponents[window.title]()}
-                </Window>
-            ))}
+            {newWindows}
         </div>
     );
 };

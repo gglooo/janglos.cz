@@ -24,6 +24,8 @@ export const StartBar = () => {
         setOpenWindows((windows) => [...windows, newWindow]);
     };
 
+    console.log(openWindows);
+
     return (
         <div className="w-full max-w-full h-8 bg-window text-black flex flex-row items-center gap-2 p-2 relative">
             <div
@@ -61,13 +63,17 @@ export const StartBar = () => {
             </div>
             <a
                 onClick={() => setIsMenuVisible(!isMenuVisible)}
-                className="fixed"
+                className="fixed cursor-pointer"
             >
                 <img src={StartIcon} width={60}></img>
             </a>
-            <div className="overflow-hidden flex flex-row max-w-full ml-16">
+            <div className="overflow-hidden flex flex-row max-w-full ml-16 select-none cursor-pointer">
                 {openWindows.map((window) => (
-                    <StartItem key={window.id} title={window.title} />
+                    <StartItem
+                        key={window.id}
+                        title={window.title}
+                        id={window.id}
+                    />
                 ))}
             </div>
             <div className="ml-auto border-b-white border-r-white border border-grey pl-2 pr-2 font-main select-none">

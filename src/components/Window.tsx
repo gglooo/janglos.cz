@@ -3,13 +3,17 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import { ContentType, ContentTypes } from "../types/ContentType";
 import { highestZIndexAtom } from "../atoms/HighestZIndex";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { openWindowsAtom } from "../atoms/OpenWindows";
+import { v4 as uuidv4 } from "uuid";
 
 interface WindowProps {
     children?: React.ReactNode;
     title: ContentType;
     onClose: () => void;
     initialPosition: { x: number; y: number };
+    zIndex: number;
+    onMouseDown: () => void;
 }
 
 export const Window = ({
@@ -17,10 +21,34 @@ export const Window = ({
     title,
     onClose,
     initialPosition,
+    zIndex,
+    onMouseDown,
 }: WindowProps) => {
     const isMobile = window.innerWidth <= 768;
-    const [highestZIndex, setHighestZIndex] = useRecoilState(highestZIndexAtom);
-    const [zIndex, setZIndex] = useState(highestZIndex);
+    const setOpenWindows = useSetRecoilState(openWindowsAtom);
+
+    const createWindow = (event: React.MouseEvent, title: ContentType) => {
+        if (title == "GitHub") {
+            window.open("https://github.com/gglooo");
+            return;
+        }
+        if (title == "LinkedIn") {
+            window.open("https://www.linkedin.com/in/jan-glos-21007b202/");
+            return;
+        }
+
+        setOpenWindows((windows) => [
+            ...windows,
+            {
+                id: Date.now(),
+                title: title,
+                initialPosition: {
+                    x: event.clientX - 100,
+                    y: event.clientY - 65,
+                },
+            },
+        ]);
+    };
 
     const content = (
         <>
@@ -43,8 +71,14 @@ export const Window = ({
                                 key={tab}
                                 className={
                                     (title == tab ? "underline" : "") +
-                                    " first-letter:underline text-md"
+                                    " first-letter:underline text-md select-none cursor-pointer"
                                 }
+                                onClick={(event) => {
+                                    if (title != tab) {
+                                        onClose();
+                                        createWindow(event, tab);
+                                    }
+                                }}
                             >
                                 {tab}
                             </h2>
@@ -101,12 +135,7 @@ export const Window = ({
             className={`lg:absolute lg:ml-auto lg:mr-auto font-main border-t-white border-l-white
                 border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
                 row-span-4 overflow-hidden`}
-            onMouseDown={() => {
-                setHighestZIndex((highest) => {
-                    setZIndex(highest + 10);
-                    return highest + 10;
-                });
-            }}
+            onMouseDown={onMouseDown}
             style={{ position: "absolute", zIndex }}
         >
             {content}
