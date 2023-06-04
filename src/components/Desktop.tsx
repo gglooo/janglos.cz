@@ -207,6 +207,7 @@ export const desktopIcons: {
     name: ContentType;
     type?: IconType;
     onClick?: VoidFunction;
+    hidden?: boolean;
 }[] = [
     {
         icon: GlobeIcon,
@@ -225,6 +226,7 @@ export const desktopIcons: {
         name: "GitHub",
         type: "link",
         onClick: () => window.open("https://github.com/gglooo"),
+        hidden: true,
     },
     {
         icon: LinkedInIcon,
@@ -232,6 +234,7 @@ export const desktopIcons: {
         type: "link",
         onClick: () =>
             window.open("https://www.linkedin.com/in/jan-glos-21007b202/"),
+        hidden: true,
     },
 ];
 

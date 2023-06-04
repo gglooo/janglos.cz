@@ -1,79 +1,84 @@
 import React from "react";
 
 export const About = () => {
+    const technologies = [
+        "React",
+        "TypeScript",
+        "Prisma",
+        "Git",
+        "Python",
+        "C",
+        "C#",
+        "HTML/CSS",
+        "TailwindCSS",
+        "SQL",
+        "Node.js",
+    ];
+
     return (
-        <div className="p-4">
-            <div className="bg-gray-100 rounded-lg p-4 mb-4">
-                {" "}
-                {/* Rectangular section */}
-                <h2 className="text-2xl font-bold mb-2">Introduction</h2>
-                <p className="text-lg">{/* Add your introduction here */}</p>
-            </div>
-
-            <div className="bg-gray-100 rounded-lg p-4 mb-4">
-                {" "}
-                {/* Rectangular section */}
-                <h2 className="text-2xl font-bold mb-2">Skills</h2>
-                <ul className="list-disc ml-6">
-                    {/* List your skills here */}
-                    <li>Skill 1</li>
-                    <li>Skill 2</li>
-                    <li>Skill 3</li>
-                </ul>
-            </div>
-
-            <div className="bg-grey rounded-lg p-4 mb-4">
-                {" "}
-                {/* Rectangular section */}
-                <h2 className="text-2xl font-bold mb-2">Experience</h2>
-                <div>
-                    {/* Add your work experience here */}
-                    <div className="mb-4">
-                        <h3 className="text-lg font-bold">Company 1</h3>
-                        <p className="text-md">Position: Job Title</p>
-                        <p className="text-md">
-                            Duration: Start Date - End Date
-                        </p>
-                        <ul className="list-disc ml-6">
-                            <li>Responsibility 1</li>
-                            <li>Responsibility 2</li>
-                            <li>Responsibility 3</li>
-                        </ul>
-                    </div>
-
-                    <div className="mb-4">
-                        <h3 className="text-lg font-bold">Company 2</h3>
-                        <p className="text-md">Position: Job Title</p>
-                        <p className="text-md">
-                            Duration: Start Date - End Date
-                        </p>
-                        <ul className="list-disc ml-6">
-                            <li>Responsibility 1</li>
-                            <li>Responsibility 2</li>
-                            <li>Responsibility 3</li>
-                        </ul>
-                    </div>
+        <div className="p-4 px-[20%] flex flex-col">
+            <section>
+                <h1 className="text-3xl font-bold">Jan Glos</h1>
+                <p className="text-dark-grey text-md">
+                    Programming and Development student | C seminar tutor &&
+                    code reviewer | Python code reviewer | Web developer
+                </p>
+                <div className="flex flex-row flex-wrap py-4">
+                    {technologies.map((technology, index) => (
+                        <div
+                            key={index}
+                            className="border border-t-white border-l-white px-4 py-1 mr-2 mb-2"
+                        >
+                            {technology}
+                        </div>
+                    ))}
                 </div>
-            </div>
-
-            <div className="bg-grey rounded-lg p-4 mb-4">
-                {" "}
-                {/* Rectangular section */}
-                <h2 className="text-2xl font-bold mb-2">Education</h2>
-                <div>
-                    {/* Add your education details here */}
-                    <div className="mb-4">
-                        <h3 className="text-lg font-bold">University Name</h3>
-                        <p className="text-md">Degree: Degree Name</p>
-                        <p className="text-md">Year: Graduation Year</p>
-                    </div>
-
-                    <div className="mb-4">
-                        <h3 className="text-lg font-bold">High School</h3>
-                        <p className="text-md">Year: Graduation Year</p>
-                    </div>
-                </div>
-            </div>
+            </section>
+            <section className="text-left grid gap-4">
+                <article>
+                    <h2 className="text-3xl font-semibold mb-2">About me</h2>
+                    <p className="text-lg">
+                        Hi! My name is Jan and I am a student of Programming and
+                        Development at the Faculty of Informatics at Masaryk
+                        University in Brno. I have recently finished my second
+                        year of studies. I am really passionate about
+                        programming, problem solving and new technologies in
+                        general.
+                    </p>
+                    <br />
+                    <p className="text-lg">
+                        Web development is my favorite activity right now,
+                        however, I never stick to one field as I try to be
+                        versatile and adaptable to new opportunities. I have
+                        built applications in C# or C and wrote a few scripts in
+                        Python and bash.
+                    </p>
+                    <br />
+                    <p className="text-lg">
+                        I am currently looking for an (ideally) full-time
+                        internship to further improve my skills, gain experience
+                        in the field and learn from experienced developers. If
+                        you have any questions do not hesitate to{" "}
+                        <a
+                            href="https://www.linkedin.com/in/jan-glos-21007b202/"
+                            className="underline"
+                        >
+                            contact me
+                        </a>
+                        .
+                    </p>
+                </article>
+                <article>
+                    <h2 className="text-3xl font-semibold mb-2">My CV</h2>
+                    <p className="text-lg">
+                        You can download my CV{" "}
+                        <a href="#" className="underline">
+                            here
+                        </a>
+                        .
+                    </p>
+                </article>
+            </section>
         </div>
     );
 };

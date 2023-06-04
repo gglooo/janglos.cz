@@ -10,7 +10,7 @@ export const Projects = () => {
             title: "Project manager desktop app",
             stack: ["C#", "MongoDB", "Avalonia", "Git"],
             description:
-                "A school project – you can create your own unique projects, invite others to collaborate, assign tasks to them and manage the progress of the project all in one place.",
+                "A school project which allows a user to create any number of projects in which the user can manage tasks for that project and users that collaborate with them on this project. All of the data is stored in the cloud so the app offers seamless access to your projects. Tasks can further be categorized, filtered, assigned to many different users, edited or deleted. I learned a lot about Avalonia and how it works, even though it was a struggle at the beginning. Persisting and learning this framework was definitely worth it.",
             image: pv178,
         },
         {
@@ -25,15 +25,16 @@ export const Projects = () => {
                 "Docker",
             ],
             description:
-                "Project in a team of 4 people – Kahoot clone. I contributed to both frontend and backend parts of this project. I really cherish the experience I gained with using websockets, as it was something I had never done before.",
+                "Project in a team of 4 people – Kahoot clone. I contributed to both frontend and backend parts of this project. I really cherish that I gained a good amount of experience working with TypeScript and React on this project. I also learned how to work in a team and collaborate / communicate with each other to achieve common goals.",
             image: brainbyte,
         },
         {
             title: "Steel structures portfolio",
             stack: ["PHP", "HTML", "CSS", "Python"],
             description:
-                "One of my first projects – I created a website for a customer, which displays models of steel structures. It was mainly focused on the ease of adding new content to the website which I achieved by dynamically generating the content from a filesystem. I also created a script in Python which translated important IFC data into a json.",
+                "One of my first projects – I created a website for a customer, which displays models of steel structures. It was mainly focused on the ease of adding new content to the website which I achieved by dynamically generating the content from a filesystem. I also created a script in Python which translated important IFC data into a json file.",
             image: karlos,
+            onClick: () => window.open("http://www.ok.9e.cz/"),
         },
     ];
 

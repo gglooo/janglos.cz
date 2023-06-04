@@ -6,6 +6,7 @@ import { highestZIndexAtom } from "../atoms/HighestZIndex";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { openWindowsAtom } from "../atoms/OpenWindows";
 import { v4 as uuidv4 } from "uuid";
+import { desktopIcons } from "./Desktop";
 
 interface WindowProps {
     children?: React.ReactNode;
@@ -63,7 +64,7 @@ export const Window = ({
                     <span>X</span>
                 </a>
             </div>
-            <div className="flex flex-col bg-window font-main p-2 w-full h-full cursor-default overflow-auto">
+            <div className="flex flex-col bg-window font-main p-2 w-full h-full cursor-default overflow-hidden sm:overflow-auto lg:overflow-hidden md:overflow-hidden">
                 <div className="flex gap-4 border border-r-white border-b-white p-1 pt-0 pb-0 mb-3 text-xl select-none">
                     {(() => {
                         return ContentTypes.map((tab) => (
@@ -93,7 +94,7 @@ export const Window = ({
     const defaultSettings = {
         "About\u00A0me": {
             default: {
-                width: 1100,
+                width: 800,
                 height: 700,
                 x: initialPosition.x,
                 y: initialPosition.y,

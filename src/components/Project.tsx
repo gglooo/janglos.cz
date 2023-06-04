@@ -6,6 +6,7 @@ interface ProjectProps {
         stack: string[];
         description: string;
         image?: string;
+        onClick?: () => void;
     };
 }
 
@@ -24,6 +25,7 @@ export const Project = ({ project }: ProjectProps) => {
     const closeModal = () => {
         setShowModal(false);
     };
+
     return (
         <div className="border border-l-white border-t-white border-r-2 border-b-2 p-4">
             {project.image && (
@@ -32,7 +34,7 @@ export const Project = ({ project }: ProjectProps) => {
                         src={project.image}
                         alt={project.title}
                         className="w-full rounded-lg mb-4 cursor-pointer"
-                        onClick={openModal}
+                        onClick={project.onClick ?? openModal}
                     />
                     {showModal && (
                         <div className="fixed inset-0 flex items-center justify-center z-50">

@@ -23,6 +23,7 @@ export default {
             desktop: "#00807F",
             window: "#CCCCCC",
             grey: "#a3a3a3",
+            "dark-grey": "#8F8F8F",
             white: "#FFFFFF",
             black: "#000000",
             blue: "#0000FF",
