@@ -1,8 +1,6 @@
 import { WeatherResponse } from "../types/WeatherResponse";
 
 export const Weather = (data: WeatherResponse) => {
-    //const [weather] = useRecoilState(weatherAtom);
-
     return (
         <div>
             <h1 className="text-3xl">Current weather</h1>

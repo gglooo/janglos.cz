@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
 import { IconPlace } from "./IconPlace";
-import { set } from "date-fns";
 import emptyBinImage from "../assets/empty_bin.png";
 import fullBinImage from "../assets/full_bin.png";
 import { useRecoilValue } from "recoil";

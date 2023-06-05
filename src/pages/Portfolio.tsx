@@ -1,5 +1,3 @@
-import Navbar from "../components/Navbar";
-import React from "react";
 import Desktop from "../components/Desktop";
 import { StartBar } from "../components/StartBar";
 

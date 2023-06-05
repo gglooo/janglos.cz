@@ -1,4 +1,3 @@
-import React from "react";
 import Project from "./Project";
 import pv178 from "../assets/pv178.png";
 import brainbyte from "../assets/brainbyte.png";

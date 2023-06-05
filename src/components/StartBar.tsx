@@ -4,7 +4,6 @@ import StartItem from "./StartItem";
 import { useDate } from "../hooks/useDate";
 import { format } from "date-fns";
 import StartIcon from "../assets/start.png";
-import { useState } from "react";
 import { desktopIcons } from "./Desktop";
 import { StartButton } from "./StartButton";
 import { ContentType } from "../types/ContentType";
@@ -25,7 +24,7 @@ export const StartBar = () => {
     };
 
     return (
-        <div className="w-full max-w-full h-8 bg-window text-black flex flex-row items-center gap-2 p-2 fixed bottom-0 z-50">
+        <div className="w-full max-w-full h-8 bg-window text-black flex flex-row items-center gap-2 p-2 absolute bottom-0 z-50">
             <div
                 className={`bg-window ${
                     isMenuVisible ? "" : "hidden"

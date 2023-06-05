@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DesktopIcon } from "./DesktopIcon";
 import Window from "./Window";
 import About from "./About";
@@ -7,7 +7,7 @@ import { ContentType } from "../types/ContentType";
 import Weather from "./Weather";
 import { WeatherResponse } from "../types/WeatherResponse";
 import { IconPlace } from "./IconPlace";
-import { IconType } from "../models/IconType";
+import { IconType } from "../types/IconType";
 import Bin from "./Bin";
 import { trashContentAtom } from "../atoms/TrashContentAtom";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -23,8 +23,6 @@ import LinkedInIcon from "../assets/linkedin.png";
 import Wallpaper from "../assets/wallpaper.png";
 import { openWindowComponents } from "../atoms/OpenWindowComponents";
 import { highestZIndexAtom } from "../atoms/HighestZIndex";
-
-console.log(GlobeIcon);
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
@@ -55,7 +53,7 @@ export const Desktop = () => {
 
             const newDesktop = [...desktop];
 
-            // handle bin, bin will always be index 0
+            // handle bin, bin will always be id 0
             if (to == "0" && from != "0") {
                 setTrashContent((trashContent) => [
                     ...trashContent,
@@ -155,7 +153,6 @@ export const Desktop = () => {
     );
 
     const maxCells = 8 * 16;
-
     for (let i = icons.length; i < maxCells; i++) {
         const id = uuidv4();
         icons.push(<IconPlace key={id} index={id} move={swap}></IconPlace>);

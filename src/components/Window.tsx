@@ -1,12 +1,8 @@
-import { is } from "date-fns/locale";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React from "react";
 import { Rnd } from "react-rnd";
 import { ContentType, ContentTypes } from "../types/ContentType";
-import { highestZIndexAtom } from "../atoms/HighestZIndex";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { openWindowsAtom } from "../atoms/OpenWindows";
-import { v4 as uuidv4 } from "uuid";
-import { desktopIcons } from "./Desktop";
 
 interface WindowProps {
     children?: React.ReactNode;

@@ -1,6 +1,5 @@
-import React, { SyntheticEvent } from "react";
 import { useDrag } from "react-dnd";
-import { IconType } from "../models/IconType";
+import { IconType } from "../types/IconType";
 
 interface DesktopIconProps {
     icon: string;
