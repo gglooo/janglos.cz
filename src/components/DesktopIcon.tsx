@@ -39,7 +39,9 @@ export const DesktopIcon = ({
                 onClick={onClick}
                 ref={drag}
             />
-            <p className="text-white text-xl">{name}</p>
+            <p className="text-white text-lg sm:text-lg md:text-lg lg:text-xl">
+                {name}
+            </p>
         </div>
     );
 };
