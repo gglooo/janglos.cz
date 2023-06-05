@@ -37,7 +37,7 @@ export const Projects = () => {
             onClick: () => window.open("http://www.ok.9e.cz/"),
         },
         {
-            title: "Windws95 themed portfolio",
+            title: "Windows95 themed portfolio",
             stack: ["TypeScript", "React", "TailwindCSS", "Git", "Vite"],
             description:
                 "The portfolio you are viewing right now is my most recent project. I put emphasis on retro visuals which take you back to the 90s. The main focus was to make the website as intuitive as possible - eg. when you see a bin icon, you can throw stuff into it, then take it out etc. Every window is draggable and resizable, each icon can be dragged and dropped anywhere on the desktop. Real Brno weather data is fetched from an API and displayed in my Weather widget. The website is responsive and should work on mobile devices as well.",
