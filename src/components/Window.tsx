@@ -143,6 +143,7 @@ export const Window = ({
             border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
             row-span-4 row-start-2 overflow-hidden top-1/2 left-1/2
             transform -translate-x-1/2 -translate-y-1/2`}
+            onMouseDown={onMouseDown}
         >
             {content}
         </div>
