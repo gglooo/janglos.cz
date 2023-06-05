@@ -16,7 +16,7 @@ export const About = () => {
     ];
 
     return (
-        <div className="p-4 px-[20%] flex flex-col">
+        <div className="p-4 px-[10%] sm:px-[10%] md:px-[15%] lg:px-[20%] flex flex-col">
             <section>
                 <h1 className="text-3xl font-bold">Jan Glos</h1>
                 <p className="text-dark-grey text-md">
@@ -64,16 +64,6 @@ export const About = () => {
                             className="underline"
                         >
                             contact me
-                        </a>
-                        .
-                    </p>
-                </article>
-                <article>
-                    <h2 className="text-3xl font-semibold mb-2">My CV</h2>
-                    <p className="text-lg">
-                        You can download my CV{" "}
-                        <a href="#" className="underline">
-                            here
                         </a>
                         .
                     </p>
