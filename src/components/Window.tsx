@@ -72,7 +72,7 @@ export const Window = ({
                                 key={tab}
                                 className={
                                     (title == tab ? "underline" : "") +
-                                    " first-letter:underline text-md select-none cursor-pointer"
+                                    " first-letter:underline text-md select-none cursor-pointer overflow-hidden whitespace-nowrap max-w-xs truncate"
                                 }
                                 onClick={(event) => {
                                     if (title != tab) {
@@ -143,9 +143,9 @@ export const Window = ({
         </Rnd>
     ) : (
         <div
-            className={`fixed max-h-[90%] z-10 font-main border-t-white border-l-white
+            className={`fixed max-h-[90%] w-full z-10 font-main border-t-white border-l-white
             border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
-            row-span-4  row-start-2 overflow-hidden top-1/2 left-1/2
+            row-span-4 row-start-2 overflow-hidden top-1/2 left-1/2
             transform -translate-x-1/2 -translate-y-1/2`}
         >
             {content}
