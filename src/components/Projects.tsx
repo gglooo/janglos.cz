@@ -10,7 +10,7 @@ export const Projects = () => {
             title: "Project manager desktop app",
             stack: ["C#", "MongoDB", "Avalonia", "Git"],
             description:
-                "A school project which allows a user to create any number of projects in which the user can manage tasks for that project and users that collaborate with them on this project. All of the data is stored in the cloud so the app offers seamless access to your projects. Tasks can further be categorized, filtered, assigned to many different users, edited or deleted. I learned a lot about Avalonia and how it works, even though it was a struggle at the beginning. Persisting and learning this framework was definitely worth it.",
+                "A school project which allows the user to create any number of projects in which the user can manage tasks and users that collaborate with them on this project. All of the data is stored in the cloud so the app offers seamless access to your projects. Tasks can further be categorized, filtered, assigned to many different users, edited or deleted. I learned a lot about Avalonia and how it works, even though it was a struggle at the beginning. Persisting and learning this framework was definitely worth it.",
             image: pv178,
         },
         {
