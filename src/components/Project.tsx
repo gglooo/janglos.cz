@@ -71,7 +71,7 @@ export const Project = ({ project }: ProjectProps) => {
                         : project.description.slice(0, 100) + "..."}
                 </p>
                 <button
-                    className="text-grey mt-2 underline focus:outline-none"
+                    className="text-darker-grey mt-2 underline focus:outline-none"
                     onClick={toggleDescription}
                 >
                     {showFullDescription ? "View Less" : "View More"}
