@@ -19,10 +19,6 @@ Welcome to my Windows95 Portfolio! This project is built using React and TypeScr
 -   HTML
 -   TailwindCSS
 
-## Credits
-
-The Windows95 Portfolio project was created by Jan Glos. It was developed as part of a personal project, with inspiration drawn from the classic Windows 95 operating system.
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
