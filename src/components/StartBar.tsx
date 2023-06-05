@@ -29,7 +29,7 @@ export const StartBar = () => {
                 className={`bg-window ${
                     isMenuVisible ? "" : "hidden"
                 } absolute left-0 bottom-8 flex
-            flex-col-reverse p-4 z-[1000] border-2 border-t-white border-l-white`}
+            flex-col p-4 z-[1000] border-2 border-t-white border-l-white`}
             >
                 {isMenuVisible &&
                     desktopIcons.map((icon) => (
