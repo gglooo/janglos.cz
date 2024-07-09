@@ -15,7 +15,7 @@ const technologies = [
     "Node.js",
 ];
 
-const UPDATED_ON = new Date("2024-02-12");
+const UPDATED_ON = new Date("2024-07-09");
 
 export const About = () => {
     // haha if you are reading this, pretend you didn't see this
@@ -29,11 +29,12 @@ export const About = () => {
         <>
             <div className="p-4 mx-[10%] sm:mx-[10%] md:mx-[15%] lg:mx-[20%] flex flex-col md:border border-r-white border-b-white px-0 md:px-10">
                 <section>
-                    <h1 className="text-3xl font-bold">Jan Glos</h1>
+                    <h1 className="text-3xl font-bold">Bc. Jan Glos</h1>
                     <p className="text-dark-grey text-md">
-                        Programming and Development student | Web developer |
-                        Mobile developer | C seminar tutor && code reviewer |
-                        Python code reviewer
+                        Software Engineering student | Programming and
+                        Development graduate | Web developer | Mobile developer
+                        | C seminar tutor && code reviewer | Python code
+                        reviewer
                     </p>
                     <div className="flex flex-row flex-wrap py-4">
                         {technologies.map((technology, index) => (
@@ -53,12 +54,12 @@ export const About = () => {
                             About me
                         </h2>
                         <p className="text-lg">
-                            Hi! My name is Jan and I am a student of Programming
-                            and Development at the Faculty of Informatics at
-                            Masaryk University in Brno. I have recently started
-                            doing the third year of my studies. I am really
-                            passionate about programming, problem solving and
-                            new technologies in general.
+                            Hi! My name is Jan and I am a student of Software
+                            Engineering at the Faculty of Informatics at Masaryk
+                            University in Brno. I have recently succesfully
+                            finished my Programming and Development bachelor's
+                            studies. I am really passionate about programming,
+                            problem solving and new technologies in general.
                         </p>
                         <br />
                         <p className="text-lg">

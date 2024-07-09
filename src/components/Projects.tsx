@@ -5,6 +5,7 @@ import gatepass3 from "../assets/gatepass3.png";
 import gatepass4 from "../assets/gatepass4.png";
 import gatepass5 from "../assets/gatepass5.png";
 import gatepass6 from "../assets/gatepass6.png";
+import gitlab from "../assets/gitlab.png";
 import karlos from "../assets/karlos.png";
 import pv178 from "../assets/pv178.png";
 import win95 from "../assets/win95.png";
@@ -72,6 +73,13 @@ const projects: Project[] = [
         description:
             "This is the portfolio you are viewing right now. I put emphasis on retro visuals which take you back to the 90s. The main focus was to make the website as intuitive as possible - eg. when you see a bin icon, you can throw stuff into it, then take it out etc. Every window is draggable and resizable, each icon can be dragged and dropped anywhere on the desktop. Real Brno weather data is fetched from an API and displayed in my Weather widget. The website is responsive and should work on mobile devices as well.",
         images: [win95],
+    },
+    {
+        title: "CI/CD pipeline for React Native apps",
+        stack: ["Python", "bash", "fastlane", "GitLab CI/CD", "Expo"],
+        description:
+            "As my bachelor thesis, I decided to streamline the process of building and deploying applications in the company I work for. I created a CI/CD pipeline which automatically builds and deploys React Native applications. The pipeline comes with a comprehensive configuration script that handles most of the work needed to set up the pipeline. It is currently being used to build and deploy large scale production applications.",
+        images: [gitlab],
     },
 ];
 
