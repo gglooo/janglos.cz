@@ -13,7 +13,7 @@ export const IconPlace = ({
     move,
     onDrag,
 }: IconPlaceProps) => {
-    const [{ isOver, canDrop }, drop] = useDrop(
+    const [_, drop] = useDrop(
         () => ({
             accept: ["normal", "trash", "link"],
             canDrop: () => {

@@ -1,11 +1,11 @@
+import { Providers } from "./context/Providers";
 import Portfolio from "./pages/Portfolio";
-import { RecoilRoot } from "recoil";
 
 function App() {
     return (
-        <RecoilRoot>
+        <Providers>
             <Portfolio />
-        </RecoilRoot>
+        </Providers>
     );
 }
 

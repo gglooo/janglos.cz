@@ -1,6 +1,5 @@
-import { openWindowComponents } from "../atoms/OpenWindowComponents";
-import { selectedStartAtom } from "../atoms/SelectedStart";
-import { useRecoilValue } from "recoil";
+import { useStartMenuContext } from "../context/StartMenuContext";
+import { useWindowContext } from "../context/WindowContext";
 
 interface StartItemProps {
     title: string;
@@ -8,8 +7,11 @@ interface StartItemProps {
 }
 
 export const StartItem = ({ title, id }: StartItemProps) => {
-    const selectedStart = useRecoilValue(selectedStartAtom);
-    const openComponents = useRecoilValue(openWindowComponents);
+    const { selectedStart } = useStartMenuContext();
+    const { windows, updateWindowZIndex } = useWindowContext();
+
+    const window = windows.find((w) => w.id === id);
+    if (!window) return null;
 
     const border =
         selectedStart !== title
@@ -19,11 +21,7 @@ export const StartItem = ({ title, id }: StartItemProps) => {
     return (
         <div
             className={"bg-window text-black font-main hover:bg-grey " + border}
-            onClick={() => {
-                openComponents
-                    .find((component) => component.key === id.toString())
-                    ?.props.onMouseDown();
-            }}
+            onClick={() => updateWindowZIndex(id)}
         >
             <h1 className="px-2">{title}</h1>
         </div>

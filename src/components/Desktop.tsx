@@ -1,48 +1,39 @@
 import { useEffect, useState } from "react";
-import { DesktopIcon } from "./DesktopIcon";
-import Window from "./Window";
-import About from "./About";
-import Projects from "./Projects";
-import { ContentType } from "../types/ContentType";
-import Weather from "./Weather";
-import { WeatherResponse } from "../types/WeatherResponse";
-import { IconPlace } from "./IconPlace";
-import { IconType } from "../types/IconType";
-import Bin from "./Bin";
-import { trashContentAtom } from "../atoms/TrashContentAtom";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { openWindowsAtom } from "../atoms/OpenWindows";
 import { v4 as uuidv4 } from "uuid";
-import { iStartMenuVisible } from "../atoms/StartMenuVisible";
+import { ContentType } from "../types/ContentType";
+import { IconType } from "../types/IconType";
+import { WeatherResponse } from "../types/WeatherResponse";
+import About from "./About";
+import Bin from "./Bin";
+import { DesktopIcon } from "./DesktopIcon";
+import { IconPlace } from "./IconPlace";
+import Projects from "./Projects";
+import Weather from "./Weather";
+import Window from "./Window";
 
-import GlobeIcon from "../assets/globe.png";
-import ProjectsIcon from "../assets/projects.png";
-import WeatherIcon from "../assets/weather.png";
 import GitHubIcon from "../assets/github.png";
+import GlobeIcon from "../assets/globe.png";
 import LinkedInIcon from "../assets/linkedin.png";
+import ProjectsIcon from "../assets/projects.png";
 import Wallpaper from "../assets/wallpaper.png";
-import { openWindowComponents } from "../atoms/OpenWindowComponents";
-import { highestZIndexAtom } from "../atoms/HighestZIndex";
+import WeatherIcon from "../assets/weather.png";
+import { useStartMenuContext } from "../context/StartMenuContext";
+import { useTrashContext } from "../context/TrashContext";
+import { useWindowContext } from "../context/WindowContext";
+
+const sizes = {
+    "About\u00A0me": { width: 800, height: 700 },
+    Projects: { width: 1100, height: 700 },
+    Weather: { width: 400, height: 300 },
+    LinkedIn: { width: 800, height: 600 },
+    GitHub: { width: 800, height: 600 },
+};
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
-    const [windows, setWindows] = useRecoilState(openWindowsAtom);
-    const setWindowComponents = useSetRecoilState(openWindowComponents);
-    const setTrashContent = useSetRecoilState(trashContentAtom);
-    const setIsMenuVisible = useSetRecoilState(iStartMenuVisible);
-    const [highestZIndex, setHighestZIndex] = useRecoilState(highestZIndexAtom);
-    const [windowZIndexes, setWindowZIndexes] = useState<{
-        [key: number]: number;
-    }>({});
-
-    const updateWindowZIndex = (windowId: number) =>
-        setHighestZIndex((highest) => {
-            setWindowZIndexes((prevZIndexes) => ({
-                ...prevZIndexes,
-                [windowId]: highest + 10,
-            }));
-            return highest + 10;
-        });
+    const { windows, setWindows } = useWindowContext();
+    const { setTrashContent } = useTrashContext();
+    const { setIsStartMenuVisible } = useStartMenuContext();
 
     const swap = (from: string, to: string) => {
         setDesktop((desktop) => {
@@ -101,27 +92,32 @@ export const Desktop = () => {
     const createWindow = (newWindow: {
         id: number;
         title: ContentType;
-        initialPosition: { x: number; y: number };
+        position: { x: number; y: number };
     }) => {
-        setWindows((windows) => [...windows, newWindow]);
+        setWindows((prevWindows) => [
+            ...prevWindows,
+            {
+                ...newWindow,
+                size: getDefaultWindowSize(newWindow.title),
+                zIndex: 10,
+                isMinimized: false,
+                isMaximized: false,
+            },
+        ]);
     };
 
-    const closeWindow = (id: number) => {
-        setWindows(windows.filter((window) => window.id !== id));
+    const getDefaultWindowSize = (title: ContentType) => {
+        return sizes[title];
     };
 
-    const onTrashClick = () => {
-        setTrashContent((trashContent) => {
-            setDesktop((desktop) => placeFromBin(trashContent, desktop));
-            return [];
-        });
+    const onTrashClick = (trashContent: JSX.Element[]) => {
+        setDesktop((d) => placeFromBin(trashContent, d));
+        setTrashContent([]);
     };
 
-    let icons = [
-        <Bin swap={swap} key={"0"} index={"0"} onClick={onTrashClick} />,
-    ];
+    let icons = [<Bin swap={swap} key={"0"} onClick={onTrashClick} />];
     icons = icons.concat(
-        desktopIcons.map((icon, i) => {
+        desktopIcons.map((icon) => {
             const id = uuidv4();
             return (
                 <IconPlace key={id} index={id} move={swap}>
@@ -132,12 +128,10 @@ export const Desktop = () => {
                         onClick={
                             icon.onClick ??
                             ((event) => {
-                                // since these windows are created by the user's click, it should be
-                                // safe to use the timestamp as the id/key.
                                 createWindow({
                                     id: event.timeStamp,
                                     title: icon.name,
-                                    initialPosition: {
+                                    position: {
                                         x: event.clientX,
                                         y: event.clientY,
                                     },
@@ -160,23 +154,6 @@ export const Desktop = () => {
 
     const [desktop, setDesktop] = useState(icons);
 
-    const newWindows = windows.map((window) => (
-        <Window
-            key={window.id}
-            title={window.title}
-            onClose={() => closeWindow(window.id)}
-            initialPosition={window.initialPosition}
-            zIndex={windowZIndexes[window.id] ?? 10}
-            onMouseDown={() => updateWindowZIndex(window.id)}
-        >
-            {windowComponents[window.title]()}
-        </Window>
-    ));
-
-    useEffect(() => {
-        setWindowComponents(newWindows);
-    }, [windows]);
-
     if (!weather) {
         return <div className="bg-desktop"></div>;
     }
@@ -186,7 +163,7 @@ export const Desktop = () => {
             className="bg-desktop sm:pl-1 h-full w-full grid grid-cols-4
         sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
         md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
-            onClick={() => setIsMenuVisible(false)}
+            onClick={() => setIsStartMenuVisible(false)}
         >
             <img
                 src={Wallpaper}
@@ -194,7 +171,13 @@ export const Desktop = () => {
                 className="fixed m-auto top-1/3 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
             {desktop}
-            {newWindows}
+            {windows.map((window) => (
+                <Window
+                    key={window.id}
+                    metadata={window}
+                    Component={windowComponents[window.title]}
+                />
+            ))}
         </div>
     );
 };

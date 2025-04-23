@@ -1,3 +1,4 @@
+import { ComponentProps } from "react";
 import { useDrag } from "react-dnd";
 import { IconType } from "../types/IconType";
 
@@ -6,7 +7,7 @@ interface DesktopIconProps {
     name: string;
     type: IconType;
     index: string;
-    onClick: (event: any) => void;
+    onClick: ComponentProps<"div">["onClick"];
 }
 
 export const DesktopIcon = ({

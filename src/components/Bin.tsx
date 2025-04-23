@@ -1,19 +1,17 @@
-import { DesktopIcon } from "./DesktopIcon";
-import { IconPlace } from "./IconPlace";
 import emptyBinImage from "../assets/empty_bin.png";
 import fullBinImage from "../assets/full_bin.png";
-import { useRecoilValue } from "recoil";
-import { trashContentAtom } from "../atoms/TrashContentAtom";
+import { useTrashContext } from "../context/TrashContext";
+import { DesktopIcon } from "./DesktopIcon";
+import { IconPlace } from "./IconPlace";
 
 interface BinProps {
     swap: (from: string, to: string) => void;
-    index: string;
-    onClick: (event: any) => void;
+    onClick: (trashContent: JSX.Element[]) => void;
 }
 
-export const Bin = ({ swap, index, onClick }: BinProps) => {
-    const trashStatus = useRecoilValue(trashContentAtom);
-    const iconPath = trashStatus.length == 0 ? emptyBinImage : fullBinImage;
+export const Bin = ({ swap, onClick }: BinProps) => {
+    const { trashContent } = useTrashContext();
+    const iconPath = trashContent.length == 0 ? emptyBinImage : fullBinImage;
 
     return (
         <IconPlace key={"0"} index={"0"} move={swap}>
@@ -21,7 +19,7 @@ export const Bin = ({ swap, index, onClick }: BinProps) => {
                 icon={iconPath}
                 name={"Trash"}
                 type={"trash"}
-                onClick={onClick}
+                onClick={() => onClick?.(trashContent)}
                 index={"0"}
                 key={"0"}
             />
