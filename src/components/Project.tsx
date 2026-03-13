@@ -119,11 +119,13 @@ export const Project = ({ project }: ProjectProps) => {
                 </div>
             ) : null}
             <div className="border p-4">
-                <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 leading-snug text-black">
+                    {project.title}
+                </h3>
                 <div className="flex gap-x-3 flex-wrap border p-2 border-l-white border-t-white">
                     {project.stack.map((stack) => (
                         <span
-                            className="bg-gray-200 text-gray-800 text-md rounded-full"
+                            className="bg-gray-200 text-gray-800 text-xs font-medium px-2 py-[2px] rounded-full"
                             // the stack should be unique
                             key={stack}
                         >
@@ -136,26 +138,26 @@ export const Project = ({ project }: ProjectProps) => {
                         className="flex flex-row items-center border border-l-white border-t-white border-r-2 border-b-2  justify-start mt-2 px-2 py-1 w-full"
                         onClick={() => window.open(project.url)}
                     >
-                        <h4 className="text-lg text-darker-grey">
+                        <h4 className="text-sm text-darker-grey font-medium">
                             Check this out at{" "}
                             <a
                                 href={project.url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-blue-500 underline"
+                                className="text-[#0b4da3] underline"
                             >
                                 {project.url.split("www.")[1]}
                             </a>
                         </h4>
                     </button>
                 ) : null}
-                <p className="text-gray-800 text-lg mt-2">
+                <p className="text-black text-[15px] leading-6 mt-3 font-normal">
                     {showFullDescription
                         ? project.description
                         : project.description.slice(0, 100) + "..."}
                 </p>
                 <button
-                    className="text-darker-grey mt-2 underline focus:outline-none"
+                    className="text-darker-grey mt-2 underline text-sm font-medium focus:outline-none"
                     onClick={toggleDescription}
                 >
                     {showFullDescription ? "View Less" : "View More"}

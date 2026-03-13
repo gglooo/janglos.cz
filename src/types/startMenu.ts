@@ -10,6 +10,13 @@ export type StartMenuCommandId =
     | "run"
     | "shutdown";
 
+export type StartMenuRunAlias =
+    | "about"
+    | "projects"
+    | "weather"
+    | "github"
+    | "linkedin";
+
 export interface StartMenuOpenWindowAction {
     type: "open-window";
     title: ContentType;

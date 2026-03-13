@@ -1,13 +1,7 @@
-import Desktop from "../components/Desktop";
-import { StartBar } from "../components/StartBar";
+import BootShell from "../components/boot/BootShell";
 
 export const Portfolio = () => {
-    return (
-        <div className="h-screen w-screen flex flex-col">
-            <Desktop />
-            <StartBar />
-        </div>
-    );
+    return <BootShell />;
 };
 
 export default Portfolio;

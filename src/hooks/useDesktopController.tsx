@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useDesktopStore } from "../components/desktop/desktopStore";
 import {
     BIN_ASSIGNMENT_ID,
@@ -32,9 +31,6 @@ export const useDesktopController = () => {
     const trashItemIds = useDesktopStore(
         (s) => s.trashItemIds ?? s.trashedItemIds,
     );
-    const initializeDesktopLayout = useDesktopStore(
-        (s) => s.initializeDesktopLayout,
-    );
     const moveDesktopItem = useDesktopStore((s) => s.moveDesktopItem);
     const sendDesktopItemToTrash = useDesktopStore(
         (s) => s.sendDesktopItemToTrash,
@@ -52,10 +48,6 @@ export const useDesktopController = () => {
             effectiveTrashItemIds,
         );
     const trashCount = effectiveTrashItemIds.length;
-
-    useEffect(() => {
-        initializeDesktopLayout?.();
-    }, [initializeDesktopLayout]);
 
     const handleIconClick = (itemId: string) => () => {
         const item = registry[itemId];

@@ -1,15 +1,14 @@
-import About from "../About";
-import Projects from "../Projects";
-import Weather from "../Weather";
 import Window from "../Window";
 import type { ContentType } from "../../types/ContentType";
 import type { WeatherResponse } from "../../types/WeatherResponse";
 import type { WindowPlacementBounds } from "../../utils/windowPlacement";
+import { renderWindowContent } from "./windowContent";
 
 interface DesktopWindowData {
     id: number;
     title: ContentType;
     bounds: WindowPlacementBounds;
+    state?: "normal" | "minimized" | "maximized";
 }
 
 interface DesktopWindowsProps {
@@ -20,19 +19,6 @@ interface DesktopWindowsProps {
     weather: WeatherResponse;
 }
 
-const renderWindowContent = (title: ContentType, weather: WeatherResponse) => {
-    switch (title) {
-        case "About\u00A0me":
-            return <About />;
-        case "Projects":
-            return <Projects />;
-        case "Weather":
-            return <Weather data={weather} />;
-        default:
-            return null;
-    }
-};
-
 export const DesktopWindows = ({
     openWindows,
     closeWindow,
@@ -41,18 +27,24 @@ export const DesktopWindows = ({
     weather,
 }: DesktopWindowsProps) => (
     <>
-        {openWindows.map((windowData) => (
-            <Window
-                key={windowData.id}
-                id={windowData.id}
-                title={windowData.title}
-                onClose={() => closeWindow(windowData.id)}
-                bounds={windowData.bounds}
-                zIndex={windowZIndexes[windowData.id] ?? 10}
-                onMouseDown={() => bringToFront(windowData.id)}
-            >
-                {renderWindowContent(windowData.title, weather)}
-            </Window>
-        ))}
+        {openWindows
+            .filter((windowData) => windowData.state !== "minimized")
+            .map((windowData) => (
+                <Window
+                    key={windowData.id}
+                    id={windowData.id}
+                    title={windowData.title}
+                    onClose={() => closeWindow(windowData.id)}
+                    bounds={windowData.bounds}
+                    zIndex={windowZIndexes[windowData.id] ?? 10}
+                    onMouseDown={() => bringToFront(windowData.id)}
+                >
+                    {renderWindowContent({
+                        title: windowData.title,
+                        weather,
+                        onClose: () => closeWindow(windowData.id),
+                    })}
+                </Window>
+            ))}
     </>
 );

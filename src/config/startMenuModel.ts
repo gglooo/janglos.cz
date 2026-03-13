@@ -1,4 +1,24 @@
-import type { StartMenuItem } from "../types/startMenu";
+import type {
+    StartMenuAction,
+    StartMenuItem,
+    StartMenuRunAlias,
+} from "../types/startMenu";
+
+export const startMenuRunAliasActions: Record<StartMenuRunAlias, StartMenuAction> = {
+    about: { type: "open-window", title: "About\u00A0me" },
+    projects: { type: "open-window", title: "Projects" },
+    weather: { type: "open-window", title: "Weather" },
+    github: {
+        type: "open-external",
+        href: "https://github.com/gglooo",
+        target: "_blank",
+    },
+    linkedin: {
+        type: "open-external",
+        href: "https://www.linkedin.com/in/jan-glos-21007b202/",
+        target: "_blank",
+    },
+};
 
 const portfolioProgramItems: StartMenuItem[] = [
     {
@@ -6,21 +26,21 @@ const portfolioProgramItems: StartMenuItem[] = [
         kind: "action",
         label: "About me",
         underlineIndex: 0,
-        action: { type: "open-window", title: "About\u00A0me" },
+        action: startMenuRunAliasActions.about,
     },
     {
         id: "programs-portfolio-projects",
         kind: "action",
         label: "Projects",
         underlineIndex: 0,
-        action: { type: "open-window", title: "Projects" },
+        action: startMenuRunAliasActions.projects,
     },
     {
         id: "programs-portfolio-weather",
         kind: "action",
         label: "Weather",
         underlineIndex: 0,
-        action: { type: "open-window", title: "Weather" },
+        action: startMenuRunAliasActions.weather,
     },
     {
         id: "programs-portfolio-sep-links",
@@ -31,22 +51,14 @@ const portfolioProgramItems: StartMenuItem[] = [
         kind: "action",
         label: "GitHub",
         underlineIndex: 0,
-        action: {
-            type: "open-external",
-            href: "https://github.com/gglooo",
-            target: "_blank",
-        },
+        action: startMenuRunAliasActions.github,
     },
     {
         id: "programs-portfolio-linkedin",
         kind: "action",
         label: "LinkedIn",
         underlineIndex: 0,
-        action: {
-            type: "open-external",
-            href: "https://www.linkedin.com/in/jan-glos-21007b202/",
-            target: "_blank",
-        },
+        action: startMenuRunAliasActions.linkedin,
     },
 ];
 
@@ -75,21 +87,21 @@ export const startMenuModel: StartMenuItem[] = [
                 kind: "action",
                 label: "About me",
                 underlineIndex: 0,
-                action: { type: "open-window", title: "About\u00A0me" },
+                action: startMenuRunAliasActions.about,
             },
             {
                 id: "programs-quick-projects",
                 kind: "action",
                 label: "Projects",
                 underlineIndex: 0,
-                action: { type: "open-window", title: "Projects" },
+                action: startMenuRunAliasActions.projects,
             },
             {
                 id: "programs-quick-weather",
                 kind: "action",
                 label: "Weather",
                 underlineIndex: 0,
-                action: { type: "open-window", title: "Weather" },
+                action: startMenuRunAliasActions.weather,
             },
         ],
     },

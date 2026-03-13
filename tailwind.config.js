@@ -17,7 +17,15 @@ export default {
             },
         },
         fontFamily: {
-            main: ["VT323", "monospace"],
+            main: [
+                "MS Sans Serif",
+                "Microsoft Sans Serif",
+                "Segoe UI",
+                "Tahoma",
+                "Geneva",
+                "sans-serif",
+            ],
+            content: ["Tahoma", "Arial", "Segoe UI", "Geneva", "sans-serif"],
         },
         colors: {
             desktop: "#00807F",

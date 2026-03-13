@@ -1,0 +1,78 @@
+{
+  "name": "janglos.cz",
+  "type": "web-app",
+  "purpose": "Retro Windows 95-style personal portfolio with draggable desktop, window manager, Start menu, Run dialog, and Brno weather widget.",
+  "stack": {
+    "runtime": "Vite + React 19 + TypeScript",
+    "state": "Zustand (slice-based, persisted)",
+    "data": "@tanstack/react-query",
+    "ui": "TailwindCSS v4 + custom Win95 styling",
+    "tests": "Vitest + Testing Library",
+    "drag_resize": "react-dnd + react-rnd"
+  },
+  "scripts": {
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "lint": "npm run lint",
+    "test": "npm run test",
+    "preview": "npm run preview"
+  },
+  "entrypoints": {
+    "app": "src/main.tsx",
+    "root_component": "src/App.tsx",
+    "page": "src/pages/Portfolio.tsx"
+  },
+  "architecture": {
+    "store": "src/store/appStore.ts composes desktop/ui-shell/window slices and persists shell state to localStorage (key: janglos-shell-state).",
+    "windows": "src/store/slices/windowSlice.ts owns canonical window lifecycle: open/focus/minimize/maximize/restore/close + cascade/tile layouts.",
+    "placement": "src/utils/windowPlacement.ts provides deterministic placement + viewport/taskbar clamping.",
+    "start_menu": "src/config/startMenuModel.ts defines hierarchical, data-driven Win95 menu model and Run aliases.",
+    "desktop": "src/components/Desktop.tsx + src/hooks/useDesktopController.tsx coordinate icon interactions and window launches.",
+    "taskbar": "src/components/StartBar.tsx + startBar/* handle Start menu, task buttons, and shell commands."
+  },
+  "critical_paths": [
+    "Open windows through store openWindow action; do not add ad-hoc launch logic in UI components.",
+    "Keep single-instance behavior by content title unless explicitly changing product behavior.",
+    "Preserve Win95 interaction model (pressed buttons, keyboard navigation, taskbar semantics).",
+    "Use data-driven Start menu model instead of hardcoded JSX branching.",
+    "Any new layout/placement logic must clamp to viewport and taskbar-safe bounds.",
+    "If changing persisted state shape, bump persist version and add safe migration defaults."
+  ],
+  "quality": {
+    "existing_tests": [
+      "tests/windowSlice.test.ts",
+      "tests/useDesktopController.test.tsx"
+    ],
+    "expectations": [
+      "Add/adjust tests for window lifecycle, z-index, placement, and launch flows when behavior changes.",
+      "Maintain strict typing in interaction paths; avoid introducing any.",
+      "Prefer deterministic behavior over cursor/time-based heuristics."
+    ]
+  },
+  "agent_guidelines": {
+    "must_use_skills": [
+      "Use brainstorming skill before creative feature/behavior work.",
+      "Use named skills from AGENTS.md when task clearly matches them."
+    ],
+    "coding": [
+      "Favor small, composable changes in existing slice/config structure.",
+      "Do not break established Win95 visual language unless explicitly requested.",
+      "Preserve accessibility for controls (semantic buttons, keyboard support)."
+    ],
+    "safety": [
+      "Do not revert unrelated local changes.",
+      "Avoid destructive git/file operations unless explicitly requested."
+    ]
+  },
+  "reference_files": [
+    "README.md",
+    "package.json",
+    "src/store/appStore.ts",
+    "src/store/slices/windowSlice.ts",
+    "src/config/startMenuModel.ts",
+    "src/components/StartBar.tsx",
+    "src/hooks/useDesktopController.tsx",
+    "src/utils/windowPlacement.ts",
+    "windows95_feature_audit.json"
+  ]
+}

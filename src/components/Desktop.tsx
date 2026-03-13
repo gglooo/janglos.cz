@@ -1,8 +1,11 @@
 import Wallpaper from "../assets/wallpaper.png";
+import { useCallback, type MouseEvent } from "react";
+import { useDesktopController } from "../hooks/useDesktopController";
+import { useWeather } from "../hooks/useWeather";
+import { DesktopContextMenu } from "./desktop/context-menu/DesktopContextMenu";
+import { useDesktopContextMenu } from "./desktop/context-menu/useDesktopContextMenu";
 import { DesktopGrid } from "./desktop/DesktopGrid";
 import { DesktopWindows } from "./desktop/DesktopWindows";
-import { useWeather } from "../hooks/useWeather";
-import { useDesktopController } from "../hooks/useDesktopController";
 
 export const Desktop = () => {
     const weather = useWeather();
@@ -20,6 +23,29 @@ export const Desktop = () => {
         trashCount,
         windowZIndexes,
     } = useDesktopController();
+    const {
+        position: contextMenuPosition,
+        close: closeContextMenu,
+        open: openContextMenu,
+        runAction,
+    } = useDesktopContextMenu();
+
+    const hasOpenWindows = openWindows.some(
+        (windowData) => windowData.state !== "minimized",
+    );
+
+    const handleDesktopClick = useCallback(() => {
+        setStartMenuVisible(false);
+        closeContextMenu();
+    }, [closeContextMenu, setStartMenuVisible]);
+
+    const handleDesktopContextMenu = useCallback(
+        (event: MouseEvent<HTMLDivElement>) => {
+            setStartMenuVisible(false);
+            openContextMenu(event);
+        },
+        [openContextMenu, setStartMenuVisible],
+    );
 
     if (!weather.data) {
         return <div className="bg-desktop"></div>;
@@ -30,7 +56,8 @@ export const Desktop = () => {
             className="bg-desktop sm:pl-1 h-full w-full grid grid-cols-4
         sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
         md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
-            onClick={() => setStartMenuVisible(false)}
+            onClick={handleDesktopClick}
+            onContextMenu={handleDesktopContextMenu}
         >
             <img
                 src={Wallpaper}
@@ -53,6 +80,13 @@ export const Desktop = () => {
                 bringToFront={bringToFront}
                 weather={weather.data}
             />
+            {contextMenuPosition ? (
+                <DesktopContextMenu
+                    position={contextMenuPosition}
+                    hasOpenWindows={hasOpenWindows}
+                    onAction={runAction}
+                />
+            ) : null}
         </div>
     );
 };

@@ -85,8 +85,8 @@ const projects: Project[] = [
 
 export const Projects = () => {
     return (
-        <div className="flex flex-col gap-4 p-4 border">
-            <h2 className="text-2xl font-semibold mb-2">Projects</h2>
+        <div className="flex flex-col gap-4 p-4 border font-content">
+            <h2 className="text-2xl font-semibold mb-2 text-black">Projects</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {projects.map((project, index) => (
                     <Project key={index} project={project} />

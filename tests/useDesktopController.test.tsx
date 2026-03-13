@@ -1,0 +1,93 @@
+// @vitest-environment jsdom
+
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DesktopStoreCompat } from "../src/components/desktop/desktopStore";
+import type { DesktopItemRegistry } from "../src/components/desktop/desktopTypes";
+import { useDesktopController } from "../src/hooks/useDesktopController";
+
+const mockUseDesktopStore = vi.fn();
+
+vi.mock("../src/components/desktop/desktopStore", () => ({
+    useDesktopStore: (selector: (state: DesktopStoreCompat) => unknown) =>
+        mockUseDesktopStore(selector),
+}));
+
+const registry: DesktopItemRegistry = {
+    projects: {
+        id: "projects",
+        name: "Projects",
+        launch: {
+            kind: "window",
+            contentId: "Projects",
+            windowTitle: "Projects",
+        },
+    },
+};
+
+const createState = (): DesktopStoreCompat => ({
+    openWindows: [],
+    closeWindow: vi.fn(),
+    windowZIndexes: {},
+    bringToFront: vi.fn(),
+    openWindow: vi.fn(),
+    updateWindowBounds: vi.fn(),
+    minimizeWindow: vi.fn(),
+    maximizeWindow: vi.fn(),
+    restoreWindow: vi.fn(),
+    setStartMenuVisible: vi.fn(),
+    desktopItemRegistry: registry,
+    desktopSlotOrder: ["desktop-trash", "desktop-slot-1"],
+    desktopSlotAssignments: {
+        "desktop-trash": { kind: "bin" },
+        "desktop-slot-1": "projects",
+    },
+    trashItemIds: [],
+    moveDesktopItem: vi.fn(),
+    sendDesktopItemToTrash: vi.fn(),
+    restoreTrashItems: vi.fn(),
+});
+
+describe("useDesktopController shell interactions", () => {
+    let state: DesktopStoreCompat;
+
+    beforeEach(() => {
+        state = createState();
+        mockUseDesktopStore.mockImplementation(
+            (selector: (storeState: DesktopStoreCompat) => unknown) =>
+                selector(state),
+        );
+    });
+
+    it("opens a window from desktop icon click using desktop launch source", () => {
+        const { result } = renderHook(() => useDesktopController());
+
+        act(() => {
+            result.current.handleIconClick("projects")();
+        });
+
+        expect(state.openWindow).toHaveBeenCalledTimes(1);
+        expect(state.openWindow).toHaveBeenCalledWith({
+            title: "Projects",
+            source: "desktop",
+        });
+    });
+
+    it("prefers launchDesktopItem handler when available", () => {
+        const launchDesktopItem = vi.fn();
+        state.launchDesktopItem = launchDesktopItem;
+
+        const { result } = renderHook(() => useDesktopController());
+
+        act(() => {
+            result.current.handleIconClick("projects")();
+        });
+
+        expect(launchDesktopItem).toHaveBeenCalledTimes(1);
+        expect(launchDesktopItem).toHaveBeenCalledWith({
+            itemId: "projects",
+            source: "desktop",
+        });
+        expect(state.openWindow).not.toHaveBeenCalled();
+    });
+});
