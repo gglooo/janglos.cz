@@ -2,7 +2,7 @@ import StartItem from "./StartItem";
 import { useDate } from "../hooks/useDate";
 import { format } from "date-fns";
 import StartIcon from "../assets/start.png";
-import { desktopIcons } from "./Desktop";
+import { desktopIcons } from "../config/desktopIcons";
 import { StartButton } from "./StartButton";
 import { useAppStore } from "../store/appStore";
 

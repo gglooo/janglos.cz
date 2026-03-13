@@ -1,32 +1,45 @@
-import { useEffect, useState } from "react";
-import { DesktopIcon } from "./DesktopIcon";
-import Window from "./Window";
-import About from "./About";
-import Projects from "./Projects";
-import { ContentType } from "../types/ContentType";
-import Weather from "./Weather";
-import { WeatherResponse } from "../types/WeatherResponse";
-import { IconPlace } from "./IconPlace";
-import { IconType } from "../types/IconType";
-import Bin from "./Bin";
+import { useState } from "react";
+import { desktopIcons } from "../config/desktopIcons";
 import { useAppStore } from "../store/appStore";
+import About from "./About";
+import Bin from "./Bin";
+import { DesktopIcon } from "./DesktopIcon";
+import { IconPlace } from "./IconPlace";
+import Projects from "./Projects";
+import Weather from "./Weather";
+import Window from "./Window";
 
-import GlobeIcon from "../assets/globe.png";
-import ProjectsIcon from "../assets/projects.png";
-import WeatherIcon from "../assets/weather.png";
-import GitHubIcon from "../assets/github.png";
-import LinkedInIcon from "../assets/linkedin.png";
 import Wallpaper from "../assets/wallpaper.png";
 
+import { useWeather } from "../hooks/useWeather";
+import { ContentType } from "../types/ContentType";
+import { WeatherResponse } from "../types/WeatherResponse";
+
+const renderWindowContent = (title: ContentType, weather: WeatherResponse) => {
+    switch (title) {
+        case "About\u00A0me":
+            return <About />;
+        case "Projects":
+            return <Projects />;
+        case "Weather":
+            return <Weather data={weather} />;
+        default:
+            return null;
+    }
+};
+
 export const Desktop = () => {
-    const [weather, setWeather] = useState<WeatherResponse | null>(null);
+    const weather = useWeather();
+
     const openWindows = useAppStore((s) => s.openWindows);
-    const addWindow = useAppStore((s) => s.addWindow);
     const closeWindow = useAppStore((s) => s.closeWindow);
     const windowZIndexes = useAppStore((s) => s.windowZIndexes);
+
     const bringToFront = useAppStore((s) => s.bringToFront);
+    const addWindow = useAppStore((s) => s.addWindow);
     const addToTrash = useAppStore((s) => s.addToTrash);
     const clearTrash = useAppStore((s) => s.clearTrash);
+
     const setStartMenuVisible = useAppStore((s) => s.setStartMenuVisible);
 
     const swap = (from: string, to: string) => {
@@ -55,28 +68,6 @@ export const Desktop = () => {
 
             return newDesktop;
         });
-    };
-
-    useEffect(() => {
-        fetch(
-            `https://api.weatherapi.com/v1/current.json?q=Brno&key=${import.meta.env.VITE_WEATHER_API_KEY}`
-        )
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error: status ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data) => setWeather(data))
-            .catch((error) => console.log(error));
-    }, []);
-
-    const windowComponents = {
-        "About\u00A0me": About,
-        Projects: Projects,
-        Weather: () => <Weather data={weather!} />,
-        LinkedIn: () => <></>,
-        GitHub: () => <></>,
     };
 
     const onTrashClick = () => {
@@ -114,7 +105,7 @@ export const Desktop = () => {
                     />
                 </IconPlace>
             );
-        })
+        }),
     );
 
     const maxCells = 8 * 16;
@@ -125,20 +116,7 @@ export const Desktop = () => {
 
     const [desktop, setDesktop] = useState(icons);
 
-    const newWindows = openWindows.map((w) => (
-        <Window
-            key={w.id}
-            title={w.title}
-            onClose={() => closeWindow(w.id)}
-            initialPosition={w.initialPosition}
-            zIndex={windowZIndexes[w.id] ?? 10}
-            onMouseDown={() => bringToFront(w.id)}
-        >
-            {windowComponents[w.title]()}
-        </Window>
-    ));
-
-    if (!weather) {
+    if (!weather.data) {
         return <div className="bg-desktop"></div>;
     }
 
@@ -155,46 +133,21 @@ export const Desktop = () => {
                 className="fixed m-auto top-1/3 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
             {desktop}
-            {newWindows}
+            {openWindows.map((w) => (
+                <Window
+                    key={w.id}
+                    title={w.title}
+                    onClose={() => closeWindow(w.id)}
+                    initialPosition={w.initialPosition}
+                    zIndex={windowZIndexes[w.id] ?? 10}
+                    onMouseDown={() => bringToFront(w.id)}
+                >
+                    {renderWindowContent(w.title, weather.data)}
+                </Window>
+            ))}
         </div>
     );
 };
-
-export const desktopIcons: {
-    icon: string;
-    name: ContentType;
-    type?: IconType;
-    onClick?: VoidFunction;
-    hidden?: boolean;
-}[] = [
-    {
-        icon: GlobeIcon,
-        name: "About\u00A0me",
-    },
-    {
-        icon: ProjectsIcon,
-        name: "Projects",
-    },
-    {
-        icon: WeatherIcon,
-        name: "Weather",
-    },
-    {
-        icon: GitHubIcon,
-        name: "GitHub",
-        type: "link",
-        onClick: () => window.open("https://github.com/gglooo"),
-        hidden: true,
-    },
-    {
-        icon: LinkedInIcon,
-        name: "LinkedIn",
-        type: "link",
-        onClick: () =>
-            window.open("https://www.linkedin.com/in/jan-glos-21007b202/"),
-        hidden: true,
-    },
-];
 
 const placeFromBin = (trashContent: JSX.Element[], desktop: JSX.Element[]) => {
     const newDesktop = [];

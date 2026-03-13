@@ -1,7 +1,14 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Portfolio from "./pages/Portfolio";
 
+const queryClient = new QueryClient();
+
 function App() {
-    return <Portfolio />;
+    return (
+        <QueryClientProvider client={queryClient}>
+            <Portfolio />
+        </QueryClientProvider>
+    );
 }
 
 export default App;

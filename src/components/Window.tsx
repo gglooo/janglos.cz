@@ -2,6 +2,8 @@ import React from "react";
 import { Rnd } from "react-rnd";
 import { ContentType, ContentTypes } from "../types/ContentType";
 import { useAppStore } from "../store/appStore";
+import { useIsMobile } from "../hooks/useIsMobile";
+import { desktopIcons } from "../config/desktopIcons";
 
 interface WindowProps {
     children?: React.ReactNode;
@@ -20,22 +22,22 @@ export const Window = ({
     zIndex,
     onMouseDown,
 }: WindowProps) => {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = useIsMobile();
     const addWindow = useAppStore((s) => s.addWindow);
 
-    const createWindow = (event: React.MouseEvent, title: ContentType) => {
-        if (title === "GitHub") {
-            window.open("https://github.com/gglooo");
-            return;
-        }
-        if (title === "LinkedIn") {
-            window.open("https://www.linkedin.com/in/jan-glos-21007b202/");
+    const handleTabClick = (event: React.MouseEvent, tab: ContentType) => {
+        if (title === tab) return;
+
+        const iconConfig = desktopIcons.find((i) => i.name === tab);
+        if (iconConfig?.onClick) {
+            iconConfig.onClick();
             return;
         }
 
+        onClose();
         addWindow({
             id: Date.now(),
-            title: title,
+            title: tab,
             initialPosition: {
                 x: event.clientX - 100,
                 y: event.clientY - 65,
@@ -58,25 +60,18 @@ export const Window = ({
             </div>
             <div className="flex flex-col bg-window font-main p-2 w-full h-full cursor-default overflow-hidden sm:overflow-auto lg:overflow-hidden md:overflow-hidden">
                 <div className="flex gap-4 border border-r-white border-b-white p-1 pt-0 pb-0 mb-3 text-xl select-none">
-                    {(() => {
-                        return ContentTypes.map((tab) => (
-                            <h2
-                                key={tab}
-                                className={
-                                    (title === tab ? "underline" : "") +
-                                    " first-letter:underline text-md select-none cursor-pointer overflow-hidden whitespace-nowrap max-w-xs truncate"
-                                }
-                                onClick={(event) => {
-                                    if (title !== tab) {
-                                        onClose();
-                                        createWindow(event, tab);
-                                    }
-                                }}
-                            >
-                                {tab}
-                            </h2>
-                        ));
-                    })()}
+                    {ContentTypes.map((tab) => (
+                        <h2
+                            key={tab}
+                            className={
+                                (title === tab ? "underline" : "") +
+                                " first-letter:underline text-md select-none cursor-pointer overflow-hidden whitespace-nowrap max-w-xs truncate"
+                            }
+                            onClick={(event) => handleTabClick(event, tab)}
+                        >
+                            {tab}
+                        </h2>
+                    ))}
                 </div>
                 <div className="overflow-auto pb-10">{children}</div>
             </div>
