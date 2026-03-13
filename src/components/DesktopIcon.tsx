@@ -31,7 +31,9 @@ export const DesktopIcon = ({
                 (isDragging ? " invisible" : "")
             }
             onClick={onClick}
-            ref={drag}
+            ref={(node) => {
+                drag(node);
+            }}
         >
             <img src={icon} alt={name} className={"w-10 h-10"} />
             <p className="text-white text-lg sm:text-lg md:text-lg lg:text-xl">

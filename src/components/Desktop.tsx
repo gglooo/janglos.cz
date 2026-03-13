@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactElement } from "react";
 import { desktopIcons } from "../config/desktopIcons";
 import { useAppStore } from "../store/appStore";
 import About from "./About";
@@ -14,6 +15,11 @@ import Wallpaper from "../assets/wallpaper.png";
 import { useWeather } from "../hooks/useWeather";
 import { ContentType } from "../types/ContentType";
 import { WeatherResponse } from "../types/WeatherResponse";
+
+type DesktopElement = ReactElement<{
+    index: string;
+    children?: unknown;
+}>;
 
 const renderWindowContent = (title: ContentType, weather: WeatherResponse) => {
     switch (title) {
@@ -43,22 +49,32 @@ export const Desktop = () => {
     const setStartMenuVisible = useAppStore((s) => s.setStartMenuVisible);
 
     const swap = (from: string, to: string) => {
+        if (from === to) {
+            return;
+        }
+
+        let trashedElement: DesktopElement | null = null;
+        const placeholderId = crypto.randomUUID();
+        const placeholder = (
+            <IconPlace key={placeholderId} index={placeholderId} move={swap} />
+        );
+
         setDesktop((desktop) => {
             const indices = desktop.map((elem) => elem.props.index);
 
             const fromElementIndex = indices.findIndex((i) => i === from);
             const toElementIndex = indices.findIndex((i) => i === to);
 
+            if (fromElementIndex === -1 || toElementIndex === -1) {
+                return desktop;
+            }
+
             const newDesktop = [...desktop];
 
             // handle bin, bin will always be id 0
             if (to === "0" && from !== "0") {
-                addToTrash(newDesktop[fromElementIndex]);
-
-                const uuid = crypto.randomUUID();
-                newDesktop[fromElementIndex] = (
-                    <IconPlace key={uuid} index={uuid} move={swap} />
-                );
+                trashedElement = newDesktop[fromElementIndex];
+                newDesktop[fromElementIndex] = placeholder;
                 return newDesktop;
             }
 
@@ -68,6 +84,10 @@ export const Desktop = () => {
 
             return newDesktop;
         });
+
+        if (trashedElement) {
+            addToTrash(trashedElement);
+        }
     };
 
     const onTrashClick = () => {
@@ -114,7 +134,7 @@ export const Desktop = () => {
         icons.push(<IconPlace key={id} index={id} move={swap}></IconPlace>);
     }
 
-    const [desktop, setDesktop] = useState(icons);
+    const [desktop, setDesktop] = useState<DesktopElement[]>(icons);
 
     if (!weather.data) {
         return <div className="bg-desktop"></div>;
@@ -149,8 +169,11 @@ export const Desktop = () => {
     );
 };
 
-const placeFromBin = (trashContent: JSX.Element[], desktop: JSX.Element[]) => {
-    const newDesktop = [];
+const placeFromBin = (
+    trashContent: DesktopElement[],
+    desktop: DesktopElement[]
+) => {
+    const newDesktop: DesktopElement[] = [];
     let trashIndex = 0;
 
     for (let i = 0; i < desktop.length; i++) {

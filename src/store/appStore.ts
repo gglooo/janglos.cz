@@ -1,5 +1,11 @@
 import { create } from "zustand";
+import type { ReactElement } from "react";
 import { ContentType } from "../types/ContentType";
+
+type DesktopElement = ReactElement<{
+    index: string;
+    children?: unknown;
+}>;
 
 export interface WindowData {
     id: number;
@@ -20,9 +26,9 @@ interface AppState {
     setStartMenuVisible: (visible: boolean) => void;
     toggleStartMenu: () => void;
 
-    trashContent: JSX.Element[];
-    addToTrash: (element: JSX.Element) => void;
-    clearTrash: () => JSX.Element[];
+    trashContent: DesktopElement[];
+    addToTrash: (element: DesktopElement) => void;
+    clearTrash: () => DesktopElement[];
 }
 
 export const useAppStore = create<AppState>((set, get) => ({

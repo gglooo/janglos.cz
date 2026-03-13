@@ -36,7 +36,7 @@ export const Project = ({ project }: ProjectProps) => {
     const goToImage = (number: 1 | -1) => {
         const nextIndex = (currentImageIndex + number) % project.images.length;
         setCurrentImageIndex(
-            nextIndex < 0 ? project.images.length - 1 : nextIndex
+            nextIndex < 0 ? project.images.length - 1 : nextIndex,
         );
     };
 
@@ -48,25 +48,32 @@ export const Project = ({ project }: ProjectProps) => {
         goToImage(-1);
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "ArrowLeft") {
-            goToPreviousImage();
-        } else if (event.key === "ArrowRight") {
-            goToNextImage();
-        } else if (event.key === "Escape") {
-            closeModal();
-        }
-    };
-
     useEffect(() => {
-        if (showModal) {
-            window.addEventListener("keydown", handleKeyDown);
+        if (!showModal) {
+            return;
         }
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "ArrowLeft") {
+                setCurrentImageIndex((prev) =>
+                    prev === 0 ? project.images.length - 1 : prev - 1,
+                );
+            } else if (event.key === "ArrowRight") {
+                setCurrentImageIndex((prev) =>
+                    prev === project.images.length - 1 ? 0 : prev + 1,
+                );
+            } else if (event.key === "Escape") {
+                setCurrentImageIndex(0);
+                setShowModal(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [showModal, goToPreviousImage, goToNextImage]);
+    }, [showModal, project.images.length]);
 
     return (
         <div className="border border-l-white border-t-white border-r-2 border-b-2 p-4">

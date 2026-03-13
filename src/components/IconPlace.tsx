@@ -1,8 +1,9 @@
 import { useDrop } from "react-dnd";
+import type { ReactNode } from "react";
 
 interface IconPlaceProps {
     index: string;
-    children?: React.ReactNode;
+    children?: ReactNode;
     move: (from: string, to: string) => void;
     onDrag?: () => void;
 }
@@ -33,7 +34,9 @@ export const IconPlace = ({
     return (
         <div
             className="flex relative justify-center items-center z-10 select-none"
-            ref={drop}
+            ref={(node) => {
+                drop(node);
+            }}
         >
             {children}
         </div>
