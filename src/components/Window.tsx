@@ -25,11 +25,11 @@ export const Window = ({
     const setOpenWindows = useSetRecoilState(openWindowsAtom);
 
     const createWindow = (event: React.MouseEvent, title: ContentType) => {
-        if (title == "GitHub") {
+        if (title === "GitHub") {
             window.open("https://github.com/gglooo");
             return;
         }
-        if (title == "LinkedIn") {
+        if (title === "LinkedIn") {
             window.open("https://www.linkedin.com/in/jan-glos-21007b202/");
             return;
         }
@@ -67,11 +67,11 @@ export const Window = ({
                             <h2
                                 key={tab}
                                 className={
-                                    (title == tab ? "underline" : "") +
+                                    (title === tab ? "underline" : "") +
                                     " first-letter:underline text-md select-none cursor-pointer overflow-hidden whitespace-nowrap max-w-xs truncate"
                                 }
                                 onClick={(event) => {
-                                    if (title != tab) {
+                                    if (title !== tab) {
                                         onClose();
                                         createWindow(event, tab);
                                     }

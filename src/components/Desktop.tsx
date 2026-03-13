@@ -12,7 +12,6 @@ import Bin from "./Bin";
 import { trashContentAtom } from "../atoms/TrashContentAtom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { openWindowsAtom } from "../atoms/OpenWindows";
-import { v4 as uuidv4 } from "uuid";
 import { iStartMenuVisible } from "../atoms/StartMenuVisible";
 
 import GlobeIcon from "../assets/globe.png";
@@ -54,13 +53,13 @@ export const Desktop = () => {
             const newDesktop = [...desktop];
 
             // handle bin, bin will always be id 0
-            if (to == "0" && from != "0") {
+            if (to === "0" && from !== "0") {
                 setTrashContent((trashContent) => [
                     ...trashContent,
                     newDesktop[fromElementIndex],
                 ]);
 
-                const uuid = uuidv4();
+                const uuid = crypto.randomUUID();
                 newDesktop[fromElementIndex] = (
                     <IconPlace key={uuid} index={uuid} move={swap} />
                 );
@@ -77,8 +76,7 @@ export const Desktop = () => {
 
     useEffect(() => {
         fetch(
-            "https://api.weatherapi.com/v1/current.json?q=Brno&key=" +
-                "4429d0cf53674ceb927153811232905"
+            `https://api.weatherapi.com/v1/current.json?q=Brno&key=${import.meta.env.VITE_WEATHER_API_KEY}`
         )
             .then((response) => {
                 if (!response.ok) {
@@ -93,7 +91,7 @@ export const Desktop = () => {
     const windowComponents = {
         "About\u00A0me": About,
         Projects: Projects,
-        Weather: () => Weather(weather!),
+        Weather: () => <Weather data={weather!} />,
         LinkedIn: () => <></>,
         GitHub: () => <></>,
     };
@@ -107,7 +105,7 @@ export const Desktop = () => {
     };
 
     const closeWindow = (id: number) => {
-        setWindows(windows.filter((window) => window.id !== id));
+        setWindows((prev) => prev.filter((window) => window.id !== id));
     };
 
     const onTrashClick = () => {
@@ -122,7 +120,7 @@ export const Desktop = () => {
     ];
     icons = icons.concat(
         desktopIcons.map((icon, i) => {
-            const id = uuidv4();
+            const id = crypto.randomUUID();
             return (
                 <IconPlace key={id} index={id} move={swap}>
                     <DesktopIcon
@@ -154,7 +152,7 @@ export const Desktop = () => {
 
     const maxCells = 8 * 16;
     for (let i = icons.length; i < maxCells; i++) {
-        const id = uuidv4();
+        const id = crypto.randomUUID();
         icons.push(<IconPlace key={id} index={id} move={swap}></IconPlace>);
     }
 

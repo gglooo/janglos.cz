@@ -13,7 +13,7 @@ interface BinProps {
 
 export const Bin = ({ swap, index, onClick }: BinProps) => {
     const trashStatus = useRecoilValue(trashContentAtom);
-    const iconPath = trashStatus.length == 0 ? emptyBinImage : fullBinImage;
+    const iconPath = trashStatus.length === 0 ? emptyBinImage : fullBinImage;
 
     return (
         <IconPlace key={"0"} index={"0"} move={swap}>

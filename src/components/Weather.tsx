@@ -1,6 +1,6 @@
 import { WeatherResponse } from "../types/WeatherResponse";
 
-export const Weather = (data: WeatherResponse) => {
+export const Weather = ({ data }: { data: WeatherResponse }) => {
     return (
         <div>
             <h1 className="text-3xl">Current weather</h1>
