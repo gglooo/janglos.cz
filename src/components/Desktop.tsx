@@ -1,140 +1,25 @@
-import { useState } from "react";
-import type { ReactElement } from "react";
-import { desktopIcons } from "../config/desktopIcons";
-import { useAppStore } from "../store/appStore";
-import About from "./About";
-import Bin from "./Bin";
-import { DesktopIcon } from "./DesktopIcon";
-import { IconPlace } from "./IconPlace";
-import Projects from "./Projects";
-import Weather from "./Weather";
-import Window from "./Window";
-
 import Wallpaper from "../assets/wallpaper.png";
-
+import { DesktopGrid } from "./desktop/DesktopGrid";
+import { DesktopWindows } from "./desktop/DesktopWindows";
 import { useWeather } from "../hooks/useWeather";
-import { ContentType } from "../types/ContentType";
-import { WeatherResponse } from "../types/WeatherResponse";
-
-type DesktopElement = ReactElement<{
-    index: string;
-    children?: unknown;
-}>;
-
-const renderWindowContent = (title: ContentType, weather: WeatherResponse) => {
-    switch (title) {
-        case "About\u00A0me":
-            return <About />;
-        case "Projects":
-            return <Projects />;
-        case "Weather":
-            return <Weather data={weather} />;
-        default:
-            return null;
-    }
-};
+import { useDesktopController } from "../hooks/useDesktopController";
 
 export const Desktop = () => {
     const weather = useWeather();
-
-    const openWindows = useAppStore((s) => s.openWindows);
-    const closeWindow = useAppStore((s) => s.closeWindow);
-    const windowZIndexes = useAppStore((s) => s.windowZIndexes);
-
-    const bringToFront = useAppStore((s) => s.bringToFront);
-    const addWindow = useAppStore((s) => s.addWindow);
-    const addToTrash = useAppStore((s) => s.addToTrash);
-    const clearTrash = useAppStore((s) => s.clearTrash);
-
-    const setStartMenuVisible = useAppStore((s) => s.setStartMenuVisible);
-
-    const swap = (from: string, to: string) => {
-        if (from === to) {
-            return;
-        }
-
-        let trashedElement: DesktopElement | null = null;
-        const placeholderId = crypto.randomUUID();
-        const placeholder = (
-            <IconPlace key={placeholderId} index={placeholderId} move={swap} />
-        );
-
-        setDesktop((desktop) => {
-            const indices = desktop.map((elem) => elem.props.index);
-
-            const fromElementIndex = indices.findIndex((i) => i === from);
-            const toElementIndex = indices.findIndex((i) => i === to);
-
-            if (fromElementIndex === -1 || toElementIndex === -1) {
-                return desktop;
-            }
-
-            const newDesktop = [...desktop];
-
-            // handle bin, bin will always be id 0
-            if (to === "0" && from !== "0") {
-                trashedElement = newDesktop[fromElementIndex];
-                newDesktop[fromElementIndex] = placeholder;
-                return newDesktop;
-            }
-
-            const temp = newDesktop[fromElementIndex];
-            newDesktop[fromElementIndex] = newDesktop[toElementIndex];
-            newDesktop[toElementIndex] = temp;
-
-            return newDesktop;
-        });
-
-        if (trashedElement) {
-            addToTrash(trashedElement);
-        }
-    };
-
-    const onTrashClick = () => {
-        const trashContent = clearTrash();
-        setDesktop((desktop) => placeFromBin(trashContent, desktop));
-    };
-
-    let icons = [
-        <Bin swap={swap} key={"0"} index={"0"} onClick={onTrashClick} />,
-    ];
-    icons = icons.concat(
-        desktopIcons.map((icon) => {
-            const id = crypto.randomUUID();
-            return (
-                <IconPlace key={id} index={id} move={swap}>
-                    <DesktopIcon
-                        icon={icon.icon}
-                        name={icon.name}
-                        type={icon.type ?? "normal"}
-                        onClick={
-                            icon.onClick ??
-                            ((event) => {
-                                addWindow({
-                                    id: event.timeStamp,
-                                    title: icon.name,
-                                    initialPosition: {
-                                        x: event.clientX,
-                                        y: event.clientY,
-                                    },
-                                });
-                            })
-                        }
-                        index={id}
-                        key={id}
-                    />
-                </IconPlace>
-            );
-        }),
-    );
-
-    const maxCells = 8 * 16;
-    for (let i = icons.length; i < maxCells; i++) {
-        const id = crypto.randomUUID();
-        icons.push(<IconPlace key={id} index={id} move={swap}></IconPlace>);
-    }
-
-    const [desktop, setDesktop] = useState<DesktopElement[]>(icons);
+    const {
+        assignments,
+        bringToFront,
+        closeWindow,
+        desktopSlotOrder,
+        handleIconClick,
+        handleMove,
+        handleTrashClick,
+        openWindows,
+        registry,
+        setStartMenuVisible,
+        trashCount,
+        windowZIndexes,
+    } = useDesktopController();
 
     if (!weather.data) {
         return <div className="bg-desktop"></div>;
@@ -152,43 +37,24 @@ export const Desktop = () => {
                 alt="wallpaper"
                 className="fixed m-auto top-1/3 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
-            {desktop}
-            {openWindows.map((w) => (
-                <Window
-                    key={w.id}
-                    title={w.title}
-                    onClose={() => closeWindow(w.id)}
-                    initialPosition={w.initialPosition}
-                    zIndex={windowZIndexes[w.id] ?? 10}
-                    onMouseDown={() => bringToFront(w.id)}
-                >
-                    {renderWindowContent(w.title, weather.data)}
-                </Window>
-            ))}
+            <DesktopGrid
+                desktopSlotOrder={desktopSlotOrder}
+                assignments={assignments}
+                registry={registry}
+                trashCount={trashCount}
+                onMove={handleMove}
+                onTrashClick={handleTrashClick}
+                onIconClick={handleIconClick}
+            />
+            <DesktopWindows
+                openWindows={openWindows}
+                closeWindow={closeWindow}
+                windowZIndexes={windowZIndexes}
+                bringToFront={bringToFront}
+                weather={weather.data}
+            />
         </div>
     );
-};
-
-const placeFromBin = (
-    trashContent: DesktopElement[],
-    desktop: DesktopElement[]
-) => {
-    const newDesktop: DesktopElement[] = [];
-    let trashIndex = 0;
-
-    for (let i = 0; i < desktop.length; i++) {
-        if (
-            desktop[i].props.children === undefined &&
-            trashContent.length > trashIndex &&
-            desktop[i].props.index !== "0" // dont overwrite the bin
-        ) {
-            newDesktop.push(trashContent[trashIndex++]);
-        } else {
-            newDesktop.push(desktop[i]);
-        }
-    }
-
-    return newDesktop;
 };
 
 export default Desktop;
