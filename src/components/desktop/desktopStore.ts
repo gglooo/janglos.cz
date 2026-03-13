@@ -2,6 +2,10 @@ import { useAppStore } from "../../store/appStore";
 import type { ContentType } from "../../types/ContentType";
 import type { DesktopItemId, DesktopSlotId } from "../../types/desktop";
 import type {
+    WindowLaunchSource,
+    WindowPlacementBounds,
+} from "../../utils/windowPlacement";
+import type {
     DesktopItemRegistry,
     DesktopSlotAssignments,
 } from "./desktopTypes";
@@ -10,16 +14,17 @@ export interface DesktopStoreCompat {
     openWindows: {
         id: number;
         title: ContentType;
-        initialPosition: { x: number; y: number };
+        bounds: WindowPlacementBounds;
     }[];
     closeWindow: (id: number) => void;
     windowZIndexes: Record<number, number>;
     bringToFront: (windowId: number) => void;
-    addWindow: (window: {
-        id: number;
+    openWindow: (payload: {
         title: ContentType;
-        initialPosition: { x: number; y: number };
+        source: WindowLaunchSource;
+        requestedPosition?: { x: number; y: number };
     }) => void;
+    updateWindowBounds: (windowId: number, bounds: WindowPlacementBounds) => void;
     setStartMenuVisible: (visible: boolean) => void;
     desktopItemRegistry?: DesktopItemRegistry;
     desktopSlotOrder?: string[];

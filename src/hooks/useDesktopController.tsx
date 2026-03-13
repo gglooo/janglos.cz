@@ -1,4 +1,3 @@
-import type { MouseEvent as ReactMouseEvent } from "react";
 import { useEffect } from "react";
 import { useDesktopStore } from "../components/desktop/desktopStore";
 import {
@@ -16,7 +15,7 @@ import type { DesktopItemId, DesktopSlotId } from "../types/desktop";
 export const useDesktopController = () => {
     const openWindows = useDesktopStore((s) => s.openWindows);
     const closeWindow = useDesktopStore((s) => s.closeWindow);
-    const addWindow = useDesktopStore((s) => s.addWindow);
+    const openWindow = useDesktopStore((s) => s.openWindow);
 
     const windowZIndexes = useDesktopStore((s) => s.windowZIndexes);
     const bringToFront = useDesktopStore((s) => s.bringToFront);
@@ -58,43 +57,35 @@ export const useDesktopController = () => {
         initializeDesktopLayout?.();
     }, [initializeDesktopLayout]);
 
-    const handleIconClick =
-        (itemId: string) => (event: ReactMouseEvent<HTMLDivElement>) => {
-            const item = registry[itemId];
-            if (!item) {
-                return;
-            }
+    const handleIconClick = (itemId: string) => () => {
+        const item = registry[itemId];
+        if (!item) {
+            return;
+        }
 
-            if (launchDesktopItem) {
-                launchDesktopItem({ itemId, event, source: "desktop" });
-                return;
-            }
+        if (launchDesktopItem) {
+            launchDesktopItem({ itemId, source: "desktop" });
+            return;
+        }
 
-            const launchUrl = resolveLaunchUrl(item);
-            if (launchUrl) {
-                window.open(launchUrl);
-                return;
-            }
+        const launchUrl = resolveLaunchUrl(item);
+        if (launchUrl) {
+            window.open(launchUrl);
+            return;
+        }
 
-            if (item.onClick) {
-                item.onClick();
-                return;
-            }
+        if (item.onClick) {
+            item.onClick();
+            return;
+        }
 
-            const title = resolveWindowTitle(item);
-            if (!title) {
-                return;
-            }
+        const title = resolveWindowTitle(item);
+        if (!title) {
+            return;
+        }
 
-            addWindow({
-                id: event.timeStamp,
-                title,
-                initialPosition: {
-                    x: event.clientX,
-                    y: event.clientY,
-                },
-            });
-        };
+        openWindow({ title, source: "desktop" });
+    };
 
     const handleMove = (fromSlotId: string, toSlotId: string) => {
         if (fromSlotId === toSlotId) {

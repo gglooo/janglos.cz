@@ -4,11 +4,12 @@ import Weather from "../Weather";
 import Window from "../Window";
 import type { ContentType } from "../../types/ContentType";
 import type { WeatherResponse } from "../../types/WeatherResponse";
+import type { WindowPlacementBounds } from "../../utils/windowPlacement";
 
 interface DesktopWindowData {
     id: number;
     title: ContentType;
-    initialPosition: { x: number; y: number };
+    bounds: WindowPlacementBounds;
 }
 
 interface DesktopWindowsProps {
@@ -43,9 +44,10 @@ export const DesktopWindows = ({
         {openWindows.map((windowData) => (
             <Window
                 key={windowData.id}
+                id={windowData.id}
                 title={windowData.title}
                 onClose={() => closeWindow(windowData.id)}
-                initialPosition={windowData.initialPosition}
+                bounds={windowData.bounds}
                 zIndex={windowZIndexes[windowData.id] ?? 10}
                 onMouseDown={() => bringToFront(windowData.id)}
             >
