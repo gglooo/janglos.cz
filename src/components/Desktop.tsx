@@ -9,10 +9,7 @@ import { WeatherResponse } from "../types/WeatherResponse";
 import { IconPlace } from "./IconPlace";
 import { IconType } from "../types/IconType";
 import Bin from "./Bin";
-import { trashContentAtom } from "../atoms/TrashContentAtom";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { openWindowsAtom } from "../atoms/OpenWindows";
-import { iStartMenuVisible } from "../atoms/StartMenuVisible";
+import { useAppStore } from "../store/appStore";
 
 import GlobeIcon from "../assets/globe.png";
 import ProjectsIcon from "../assets/projects.png";
@@ -20,28 +17,17 @@ import WeatherIcon from "../assets/weather.png";
 import GitHubIcon from "../assets/github.png";
 import LinkedInIcon from "../assets/linkedin.png";
 import Wallpaper from "../assets/wallpaper.png";
-import { openWindowComponents } from "../atoms/OpenWindowComponents";
-import { highestZIndexAtom } from "../atoms/HighestZIndex";
 
 export const Desktop = () => {
     const [weather, setWeather] = useState<WeatherResponse | null>(null);
-    const [windows, setWindows] = useRecoilState(openWindowsAtom);
-    const setWindowComponents = useSetRecoilState(openWindowComponents);
-    const setTrashContent = useSetRecoilState(trashContentAtom);
-    const setIsMenuVisible = useSetRecoilState(iStartMenuVisible);
-    const [highestZIndex, setHighestZIndex] = useRecoilState(highestZIndexAtom);
-    const [windowZIndexes, setWindowZIndexes] = useState<{
-        [key: number]: number;
-    }>({});
-
-    const updateWindowZIndex = (windowId: number) =>
-        setHighestZIndex((highest) => {
-            setWindowZIndexes((prevZIndexes) => ({
-                ...prevZIndexes,
-                [windowId]: highest + 10,
-            }));
-            return highest + 10;
-        });
+    const openWindows = useAppStore((s) => s.openWindows);
+    const addWindow = useAppStore((s) => s.addWindow);
+    const closeWindow = useAppStore((s) => s.closeWindow);
+    const windowZIndexes = useAppStore((s) => s.windowZIndexes);
+    const bringToFront = useAppStore((s) => s.bringToFront);
+    const addToTrash = useAppStore((s) => s.addToTrash);
+    const clearTrash = useAppStore((s) => s.clearTrash);
+    const setStartMenuVisible = useAppStore((s) => s.setStartMenuVisible);
 
     const swap = (from: string, to: string) => {
         setDesktop((desktop) => {
@@ -54,10 +40,7 @@ export const Desktop = () => {
 
             // handle bin, bin will always be id 0
             if (to === "0" && from !== "0") {
-                setTrashContent((trashContent) => [
-                    ...trashContent,
-                    newDesktop[fromElementIndex],
-                ]);
+                addToTrash(newDesktop[fromElementIndex]);
 
                 const uuid = crypto.randomUUID();
                 newDesktop[fromElementIndex] = (
@@ -96,30 +79,16 @@ export const Desktop = () => {
         GitHub: () => <></>,
     };
 
-    const createWindow = (newWindow: {
-        id: number;
-        title: ContentType;
-        initialPosition: { x: number; y: number };
-    }) => {
-        setWindows((windows) => [...windows, newWindow]);
-    };
-
-    const closeWindow = (id: number) => {
-        setWindows((prev) => prev.filter((window) => window.id !== id));
-    };
-
     const onTrashClick = () => {
-        setTrashContent((trashContent) => {
-            setDesktop((desktop) => placeFromBin(trashContent, desktop));
-            return [];
-        });
+        const trashContent = clearTrash();
+        setDesktop((desktop) => placeFromBin(trashContent, desktop));
     };
 
     let icons = [
         <Bin swap={swap} key={"0"} index={"0"} onClick={onTrashClick} />,
     ];
     icons = icons.concat(
-        desktopIcons.map((icon, i) => {
+        desktopIcons.map((icon) => {
             const id = crypto.randomUUID();
             return (
                 <IconPlace key={id} index={id} move={swap}>
@@ -130,9 +99,7 @@ export const Desktop = () => {
                         onClick={
                             icon.onClick ??
                             ((event) => {
-                                // since these windows are created by the user's click, it should be
-                                // safe to use the timestamp as the id/key.
-                                createWindow({
+                                addWindow({
                                     id: event.timeStamp,
                                     title: icon.name,
                                     initialPosition: {
@@ -158,22 +125,18 @@ export const Desktop = () => {
 
     const [desktop, setDesktop] = useState(icons);
 
-    const newWindows = windows.map((window) => (
+    const newWindows = openWindows.map((w) => (
         <Window
-            key={window.id}
-            title={window.title}
-            onClose={() => closeWindow(window.id)}
-            initialPosition={window.initialPosition}
-            zIndex={windowZIndexes[window.id] ?? 10}
-            onMouseDown={() => updateWindowZIndex(window.id)}
+            key={w.id}
+            title={w.title}
+            onClose={() => closeWindow(w.id)}
+            initialPosition={w.initialPosition}
+            zIndex={windowZIndexes[w.id] ?? 10}
+            onMouseDown={() => bringToFront(w.id)}
         >
-            {windowComponents[window.title]()}
+            {windowComponents[w.title]()}
         </Window>
     ));
-
-    useEffect(() => {
-        setWindowComponents(newWindows);
-    }, [windows]);
 
     if (!weather) {
         return <div className="bg-desktop"></div>;
@@ -184,7 +147,7 @@ export const Desktop = () => {
             className="bg-desktop sm:pl-1 h-full w-full grid grid-cols-4
         sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
         md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
-            onClick={() => setIsMenuVisible(false)}
+            onClick={() => setStartMenuVisible(false)}
         >
             <img
                 src={Wallpaper}

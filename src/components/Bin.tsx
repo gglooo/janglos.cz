@@ -2,8 +2,7 @@ import { DesktopIcon } from "./DesktopIcon";
 import { IconPlace } from "./IconPlace";
 import emptyBinImage from "../assets/empty_bin.png";
 import fullBinImage from "../assets/full_bin.png";
-import { useRecoilValue } from "recoil";
-import { trashContentAtom } from "../atoms/TrashContentAtom";
+import { useAppStore } from "../store/appStore";
 
 interface BinProps {
     swap: (from: string, to: string) => void;
@@ -12,8 +11,8 @@ interface BinProps {
 }
 
 export const Bin = ({ swap, index, onClick }: BinProps) => {
-    const trashStatus = useRecoilValue(trashContentAtom);
-    const iconPath = trashStatus.length === 0 ? emptyBinImage : fullBinImage;
+    const trashContent = useAppStore((s) => s.trashContent);
+    const iconPath = trashContent.length === 0 ? emptyBinImage : fullBinImage;
 
     return (
         <IconPlace key={"0"} index={"0"} move={swap}>

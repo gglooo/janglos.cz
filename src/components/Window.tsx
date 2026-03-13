@@ -1,8 +1,7 @@
 import React from "react";
 import { Rnd } from "react-rnd";
 import { ContentType, ContentTypes } from "../types/ContentType";
-import { useSetRecoilState } from "recoil";
-import { openWindowsAtom } from "../atoms/OpenWindows";
+import { useAppStore } from "../store/appStore";
 
 interface WindowProps {
     children?: React.ReactNode;
@@ -22,7 +21,7 @@ export const Window = ({
     onMouseDown,
 }: WindowProps) => {
     const isMobile = window.innerWidth <= 768;
-    const setOpenWindows = useSetRecoilState(openWindowsAtom);
+    const addWindow = useAppStore((s) => s.addWindow);
 
     const createWindow = (event: React.MouseEvent, title: ContentType) => {
         if (title === "GitHub") {
@@ -34,17 +33,14 @@ export const Window = ({
             return;
         }
 
-        setOpenWindows((windows) => [
-            ...windows,
-            {
-                id: Date.now(),
-                title: title,
-                initialPosition: {
-                    x: event.clientX - 100,
-                    y: event.clientY - 65,
-                },
+        addWindow({
+            id: Date.now(),
+            title: title,
+            initialPosition: {
+                x: event.clientX - 100,
+                y: event.clientY - 65,
             },
-        ]);
+        });
     };
 
     const content = (

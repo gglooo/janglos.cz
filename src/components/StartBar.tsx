@@ -1,27 +1,19 @@
-import { openWindowsAtom } from "../atoms/OpenWindows";
-import { useRecoilState } from "recoil";
 import StartItem from "./StartItem";
 import { useDate } from "../hooks/useDate";
 import { format } from "date-fns";
 import StartIcon from "../assets/start.png";
 import { desktopIcons } from "./Desktop";
 import { StartButton } from "./StartButton";
-import { ContentType } from "../types/ContentType";
-import { iStartMenuVisible } from "../atoms/StartMenuVisible";
+import { useAppStore } from "../store/appStore";
 
 export const StartBar = () => {
-    const [openWindows, setOpenWindows] = useRecoilState(openWindowsAtom);
+    const openWindows = useAppStore((s) => s.openWindows);
+    const addWindow = useAppStore((s) => s.addWindow);
+    const isMenuVisible = useAppStore((s) => s.isStartMenuVisible);
+    const setStartMenuVisible = useAppStore((s) => s.setStartMenuVisible);
+    const toggleStartMenu = useAppStore((s) => s.toggleStartMenu);
     const currTime = useDate();
     const formattedTime = format(currTime, "HH:mm");
-    const [isMenuVisible, setIsMenuVisible] = useRecoilState(iStartMenuVisible);
-
-    const createWindow = (newWindow: {
-        id: number;
-        title: ContentType;
-        initialPosition: { x: number; y: number };
-    }) => {
-        setOpenWindows((windows) => [...windows, newWindow]);
-    };
 
     return (
         <div className="w-full max-w-full h-8 bg-window text-black flex flex-row items-center gap-2 p-2 absolute bottom-0 z-50">
@@ -41,11 +33,11 @@ export const StartBar = () => {
                                 icon.onClick != undefined
                                     ? () => {
                                           icon.onClick!();
-                                          setIsMenuVisible(false);
+                                          setStartMenuVisible(false);
                                       }
                                     : (event) => {
-                                          setIsMenuVisible(false);
-                                          createWindow({
+                                          setStartMenuVisible(false);
+                                          addWindow({
                                               id: event.timeStamp,
                                               title: icon.name,
                                               initialPosition: {
@@ -59,17 +51,17 @@ export const StartBar = () => {
                     ))}
             </div>
             <a
-                onClick={() => setIsMenuVisible(!isMenuVisible)}
+                onClick={toggleStartMenu}
                 className="fixed cursor-pointer"
             >
                 <img src={StartIcon} width={60}></img>
             </a>
             <div className="overflow-hidden flex flex-row max-w-full ml-16 select-none cursor-pointer">
-                {openWindows.map((window) => (
+                {openWindows.map((w) => (
                     <StartItem
-                        key={window.id}
-                        title={window.title}
-                        id={window.id}
+                        key={w.id}
+                        title={w.title}
+                        id={w.id}
                     />
                 ))}
             </div>
