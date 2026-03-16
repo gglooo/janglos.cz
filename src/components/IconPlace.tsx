@@ -8,6 +8,7 @@ import type {
 
 interface IconPlaceDropPayload {
     itemId?: DesktopItemId;
+    selectedItemIds?: DesktopItemId[];
     sourceSlotId: DesktopSlotId;
     targetSlotId: DesktopSlotId;
 }
@@ -45,10 +46,13 @@ export const IconPlace = ({
 
                 onDrop?.({
                     itemId: item.itemId,
+                    selectedItemIds: item.selectedItemIds,
                     sourceSlotId,
                     targetSlotId: resolvedSlotId,
                 });
-                move?.(sourceSlotId, resolvedSlotId);
+                if (!onDrop) {
+                    move?.(sourceSlotId, resolvedSlotId);
+                }
             },
             collect: (monitor) => ({
                 isOver: !!monitor.isOver(),

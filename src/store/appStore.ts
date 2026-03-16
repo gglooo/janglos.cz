@@ -5,14 +5,8 @@ import {
     type StorageValue,
 } from "zustand/middleware";
 import { desktopRegistrySeed } from "../config/desktopIcons";
-import {
-    createDesktopSlice,
-    type DesktopSlice,
-} from "./slices/desktopSlice";
-import {
-    createUiShellSlice,
-    type UiShellSlice,
-} from "./slices/uiShellSlice";
+import { createDesktopSlice, type DesktopSlice } from "./slices/desktopSlice";
+import { createUiShellSlice, type UiShellSlice } from "./slices/uiShellSlice";
 import {
     createWindowSlice,
     type WindowData,
@@ -22,7 +16,7 @@ import {
 export type AppState = WindowSlice & UiShellSlice & DesktopSlice;
 export type { WindowData };
 
-type PersistedAppState = Pick<
+type PersistedShellState = Pick<
     AppState,
     | "desktopSlotOrder"
     | "desktopSlotAssignments"
@@ -37,6 +31,10 @@ type PersistedAppState = Pick<
     | "bootSequenceCompleted"
 >;
 
+interface PersistedAppState extends PersistedShellState {
+    desktopSeedSignature: string;
+}
+
 interface AppStoreActions {
     shutdownAndReset: () => void;
 }
@@ -45,8 +43,9 @@ type StoreState = AppState & AppStoreActions;
 
 const SHELL_PERSIST_KEY = "janglos-shell-state";
 const SHELL_PERSIST_VERSION = 1;
+const DESKTOP_SEED_SIGNATURE = desktopRegistrySeed.itemIds.join("|");
 
-const createDefaultPersistedState = (): PersistedAppState => ({
+const createDefaultShellState = (): PersistedShellState => ({
     desktopSlotOrder: [...desktopRegistrySeed.slotOrder],
     desktopSlotAssignments: { ...desktopRegistrySeed.slotAssignments },
     trashItemIds: [],
@@ -60,6 +59,22 @@ const createDefaultPersistedState = (): PersistedAppState => ({
     bootSequenceCompleted: false,
 });
 
+const createDefaultPersistedState = (): PersistedAppState => ({
+    ...createDefaultShellState(),
+    desktopSeedSignature: DESKTOP_SEED_SIGNATURE,
+});
+
+const hasValidDesktopSeedSignature = (persistedState: unknown) => {
+    if (!persistedState || typeof persistedState !== "object") {
+        return false;
+    }
+
+    return (
+        (persistedState as { desktopSeedSignature?: unknown })
+            .desktopSeedSignature === DESKTOP_SEED_SIGNATURE
+    );
+};
+
 const safeLocalStorage: PersistStorage<PersistedAppState> = {
     getItem: (name) => {
         if (typeof window === "undefined") {
@@ -72,7 +87,9 @@ const safeLocalStorage: PersistStorage<PersistedAppState> = {
         }
 
         try {
-            const parsed = JSON.parse(rawValue) as StorageValue<PersistedAppState>;
+            const parsed = JSON.parse(
+                rawValue,
+            ) as StorageValue<PersistedAppState>;
             if (!parsed || typeof parsed !== "object" || !("state" in parsed)) {
                 window.localStorage.removeItem(name);
                 return null;
@@ -106,7 +123,7 @@ const createAppState: StateCreator<StoreState, [], [], StoreState> = (
     ...createUiShellSlice<StoreState>()(set, get, api),
     ...createDesktopSlice<StoreState>()(set, get, api),
     shutdownAndReset: () => {
-        const defaults = createDefaultPersistedState();
+        const defaults = createDefaultShellState();
 
         set({
             ...defaults,
@@ -117,9 +134,9 @@ const createAppState: StateCreator<StoreState, [], [], StoreState> = (
 });
 
 const sanitizePersistedState = (
-    persistedState: Partial<PersistedAppState>,
-): PersistedAppState => {
-    const defaults = createDefaultPersistedState();
+    persistedState: Partial<PersistedShellState>,
+): PersistedShellState => {
+    const defaults = createDefaultShellState();
 
     return {
         desktopSlotOrder: Array.isArray(persistedState.desktopSlotOrder)
@@ -187,6 +204,7 @@ export const useAppStore = create<StoreState>()(
             lastKnownBoundsByTitle: state.lastKnownBoundsByTitle,
             isPoweredOn: state.isPoweredOn,
             bootSequenceCompleted: state.bootSequenceCompleted,
+            desktopSeedSignature: DESKTOP_SEED_SIGNATURE,
         }),
         migrate: (persistedState, version) => {
             if (
@@ -197,17 +215,24 @@ export const useAppStore = create<StoreState>()(
                 return createDefaultPersistedState();
             }
 
-            return sanitizePersistedState(
-                persistedState as Partial<PersistedAppState>,
-            );
+            if (!hasValidDesktopSeedSignature(persistedState)) {
+                return createDefaultPersistedState();
+            }
+
+            return {
+                ...sanitizePersistedState(
+                    persistedState as Partial<PersistedShellState>,
+                ),
+                desktopSeedSignature: DESKTOP_SEED_SIGNATURE,
+            };
         },
         merge: (persistedState, currentState) => ({
             ...currentState,
-            ...(persistedState
+            ...(persistedState && hasValidDesktopSeedSignature(persistedState)
                 ? sanitizePersistedState(
-                      persistedState as Partial<PersistedAppState>,
+                      persistedState as Partial<PersistedShellState>,
                   )
-                : createDefaultPersistedState()),
+                : createDefaultShellState()),
         }),
     }),
 );

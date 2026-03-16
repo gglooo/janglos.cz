@@ -11,6 +11,8 @@ import {
 } from "../components/desktop/desktopUtils";
 import type { DesktopItemId, DesktopSlotId } from "../types/desktop";
 
+const TRASH_DRAG_SOURCE_PREFIX = "trash-item:";
+
 export const useDesktopController = () => {
     const openWindows = useDesktopStore((s) => s.openWindows);
     const closeWindow = useDesktopStore((s) => s.closeWindow);
@@ -32,10 +34,15 @@ export const useDesktopController = () => {
         (s) => s.trashItemIds ?? s.trashedItemIds,
     );
     const moveDesktopItem = useDesktopStore((s) => s.moveDesktopItem);
+    const moveDesktopItemsToSlots = useDesktopStore(
+        (s) => s.moveDesktopItemsToSlots,
+    );
     const sendDesktopItemToTrash = useDesktopStore(
         (s) => s.sendDesktopItemToTrash,
     );
-    const restoreTrashItems = useDesktopStore((s) => s.restoreTrashItems);
+    const restoreTrashItemToSlot = useDesktopStore(
+        (s) => s.restoreTrashItemToSlot,
+    );
     const launchDesktopItem = useDesktopStore((s) => s.launchDesktopItem);
 
     const registry = normalizeDesktopRegistry(desktopItemRegistry);
@@ -84,6 +91,20 @@ export const useDesktopController = () => {
             return;
         }
 
+        if (fromSlotId.startsWith(TRASH_DRAG_SOURCE_PREFIX)) {
+            const trashedItemId = fromSlotId.slice(
+                TRASH_DRAG_SOURCE_PREFIX.length,
+            );
+            if (toSlotId === BIN_SLOT_ID || !trashedItemId) {
+                return;
+            }
+            restoreTrashItemToSlot?.(
+                trashedItemId as DesktopItemId,
+                toSlotId as DesktopSlotId,
+            );
+            return;
+        }
+
         const fromItemId = resolveAssignmentItemId(assignments[fromSlotId]);
         if (!fromItemId || fromItemId === BIN_ASSIGNMENT_ID) {
             return;
@@ -101,7 +122,7 @@ export const useDesktopController = () => {
     };
 
     const handleTrashClick = () => {
-        restoreTrashItems?.();
+        openWindow({ title: "Trash", source: "desktop" });
     };
 
     return {
@@ -116,6 +137,7 @@ export const useDesktopController = () => {
         registry,
         setStartMenuVisible,
         trashCount,
+        moveDesktopItemsToSlots,
         windowZIndexes,
     };
 };

@@ -18,6 +18,7 @@ export default {
         },
         fontFamily: {
             main: [
+                "W95font",
                 "MS Sans Serif",
                 "Microsoft Sans Serif",
                 "Segoe UI",
@@ -25,7 +26,14 @@ export default {
                 "Geneva",
                 "sans-serif",
             ],
-            content: ["Tahoma", "Arial", "Segoe UI", "Geneva", "sans-serif"],
+            content: [
+                "W95font",
+                "Tahoma",
+                "Arial",
+                "Segoe UI",
+                "Geneva",
+                "sans-serif",
+            ],
         },
         colors: {
             desktop: "#00807F",
@@ -35,7 +43,7 @@ export default {
             "darker-grey": "#5F5F5F",
             white: "#FFFFFF",
             black: "#000000",
-            blue: "#0000FF",
+            blue: "#08009e",
         },
     },
     plugins: [],

@@ -1,23 +1,56 @@
-import { addMonths, differenceInMonths, format } from "date-fns";
+import {
+    addMonths,
+    differenceInMonths,
+    differenceInYears,
+    format,
+} from "date-fns";
+import MeImage from "../assets/photo.jpeg";
+import { useAsciiConverter } from "../hooks/useAsciiConverter";
 
 const technologies = [
     "React",
     "React Native",
     "TypeScript",
-    "Prisma",
+    ".NET",
+    "System design",
     "Git",
     "Python",
     "C",
-    "C#",
     "HTML/CSS",
     "TailwindCSS",
     "SQL",
     "Node.js",
 ];
 
-const UPDATED_ON = new Date("2024-07-09");
+const UPDATED_ON = new Date("2026-03-16");
+
+const getWorkingDuration = (startDate: Date) => {
+    const now = new Date();
+    const years = differenceInYears(now, startDate);
+    const months = differenceInMonths(now, addMonths(startDate, years * 12));
+    return { years, months };
+};
+
+const formatWorkingDuration = (startDate: Date) => {
+    const { years, months } = getWorkingDuration(startDate);
+    const yearPart = years > 0 ? `${years} year${years > 1 ? "s" : ""}` : "";
+
+    const monthPart =
+        months > 0 ? `${months} month${months > 1 ? "s" : ""}` : "";
+
+    return [yearPart, monthPart].filter(Boolean).join(" and ");
+};
 
 export const About = () => {
+    const { asciiArt, isGenerating, error } = useAsciiConverter({
+        initialImageSrc: MeImage,
+        initialFileName: "photo.jpeg",
+        initialSettings: {
+            width: 60,
+            contrastFactor: 1.4,
+        },
+    });
+
     // haha if you are reading this, pretend you didn't see this
     const timeDifference = differenceInMonths(new Date(), UPDATED_ON);
     const displayedUpdatedOn =
@@ -56,10 +89,9 @@ export const About = () => {
                         <p className="text-lg">
                             Hi! My name is Jan and I am a student of Software
                             Engineering at the Faculty of Informatics at Masaryk
-                            University in Brno. I have recently succesfully
-                            finished my Programming and Development bachelor's
-                            studies. I am really passionate about programming,
-                            problem solving and new technologies in general.
+                            University in Brno. I am really passionate about
+                            programming, problem solving and new technologies in
+                            general.
                         </p>
                         <br />
                         <p className="text-lg">
@@ -73,27 +105,33 @@ export const About = () => {
                         <p className="text-lg">
                             As of now, I am working in InQool in Brno as a
                             mobile React Native developer. Throughout the{" "}
-                            {differenceInMonths(new Date(), new Date(2023, 6))}{" "}
-                            months of me working there, I have had the
-                            opportunity to work on amazing projects such as the
-                            Balíkovna mobile app for the Czech Post and many
-                            others.
+                            {formatWorkingDuration(new Date(2023, 6))} of me
+                            working there, I have had the opportunity to work on
+                            amazing projects such as the Balíkovna mobile app
+                            for the Czech Post and many others.
                         </p>
                         <br />
                         <p className="text-lg">
-                            I am not currently actively looking for a job offer.
-                            However, if you think your proposal might sound
-                            interesting to me or if you have any questions do
-                            not hesitate to{" "}
+                            I’m always open to discussing new opportunities or
+                            answering questions about my work. Don’t hesitate to{" "}
                             <a
                                 href="https://www.linkedin.com/in/jan-glos-21007b202/"
                                 className="underline"
                             >
-                                contact me
+                                drop me a message!
                             </a>
                             .
                         </p>
                     </article>
+                    <div className="flex items-center w-full justify-center">
+                        <pre className="font-mono text-[7px] leading-1 border border-t-white border-l-white p-4 w-max whitespace-pre">
+                            {isGenerating
+                                ? "Rendering ASCII portrait..."
+                                : error ||
+                                  asciiArt ||
+                                  "ASCII portrait unavailable."}
+                        </pre>
+                    </div>
                 </section>
             </div>
             <p className="text-center text-sm text-dark-grey p-4">

@@ -1,4 +1,3 @@
-import type { ReactElement } from "react";
 import type { ContentType } from "../../types/ContentType";
 import type { IconType } from "../../types/IconType";
 
@@ -20,6 +19,7 @@ export interface DesktopItemDefinition {
     name?: ContentType | string;
     title?: ContentType | string;
     type?: IconType;
+    hideLabel?: boolean;
     hidden?: boolean;
     onClick?: VoidFunction;
     url?: string;
@@ -41,8 +41,3 @@ export interface DesktopItemDefinition {
 }
 
 export type DesktopItemRegistry = Record<string, DesktopItemDefinition>;
-
-export type LegacyDesktopElement = ReactElement<{
-    index?: string;
-    children?: unknown;
-}>;

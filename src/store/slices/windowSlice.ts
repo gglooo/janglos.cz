@@ -4,6 +4,7 @@ import {
     clampWindowBounds,
     computeWindowPlacement,
     DEFAULT_TASKBAR_HEIGHT,
+    isForcedFullscreenTitle,
     type WindowLaunchSource,
     type WindowPlacementBounds,
 } from "../../utils/windowPlacement";
@@ -62,6 +63,18 @@ const getViewportBounds = () => ({
     width: typeof window !== "undefined" ? window.innerWidth : 1280,
     height: typeof window !== "undefined" ? window.innerHeight : 720,
 });
+
+const getMaximizedBounds = (viewport: { width: number; height: number }) =>
+    clampWindowBounds(
+        {
+            x: 0,
+            y: 0,
+            width: viewport.width,
+            height: viewport.height - DEFAULT_TASKBAR_HEIGHT,
+        },
+        viewport,
+        DEFAULT_TASKBAR_HEIGHT,
+    );
 
 const getEligibleWindows = (state: WindowSlice) =>
     state.openWindows
@@ -247,15 +260,26 @@ export const createWindowSlice = <
     openWindows: [],
     openWindow: ({ title, source, requestedPosition }) =>
         set((state) => {
+            const shouldForceMaximized = isForcedFullscreenTitle(title);
             const existingWindow = state.openWindows.find((windowData) => {
                 return windowData.title === title;
             });
 
             if (existingWindow) {
                 const newZ = state.highestZIndex + 10;
+                const viewport = getViewportBounds();
+                const maximizedBounds = getMaximizedBounds(viewport);
                 const nextOpenWindows = state.openWindows.map((windowData) =>
                     windowData.id === existingWindow.id
-                        ? { ...windowData, state: "normal" as const }
+                        ? {
+                              ...windowData,
+                              state: shouldForceMaximized
+                                  ? ("maximized" as const)
+                                  : ("normal" as const),
+                              bounds: shouldForceMaximized
+                                  ? maximizedBounds
+                                  : windowData.bounds,
+                          }
                         : windowData,
                 );
                 return {
@@ -265,6 +289,18 @@ export const createWindowSlice = <
                         ...state.windowZIndexes,
                         [existingWindow.id]: newZ,
                     },
+                    windowBoundsById: shouldForceMaximized
+                        ? {
+                              ...state.windowBoundsById,
+                              [existingWindow.id]: maximizedBounds,
+                          }
+                        : state.windowBoundsById,
+                    lastKnownBoundsByTitle: shouldForceMaximized
+                        ? {
+                              ...state.lastKnownBoundsByTitle,
+                              [title]: maximizedBounds,
+                          }
+                        : state.lastKnownBoundsByTitle,
                 } as Partial<T>;
             }
 
@@ -290,19 +326,29 @@ export const createWindowSlice = <
 
             const id = state.nextWindowId;
             const newZ = state.highestZIndex + 10;
+            const maximizedBounds = getMaximizedBounds(viewport);
+            const initialBounds = shouldForceMaximized ? maximizedBounds : nextBounds;
 
             return {
                 nextWindowId: id + 1,
                 openWindows: [
                     ...state.openWindows,
-                    { id, title, bounds: nextBounds, state: "normal" },
+                    {
+                        id,
+                        title,
+                        bounds: initialBounds,
+                        state: shouldForceMaximized ? "maximized" : "normal",
+                    },
                 ],
                 highestZIndex: newZ,
                 windowZIndexes: { ...state.windowZIndexes, [id]: newZ },
-                windowBoundsById: { ...state.windowBoundsById, [id]: nextBounds },
+                windowBoundsById: {
+                    ...state.windowBoundsById,
+                    [id]: initialBounds,
+                },
                 lastKnownBoundsByTitle: {
                     ...state.lastKnownBoundsByTitle,
-                    [title]: nextBounds,
+                    [title]: initialBounds,
                 },
             } as Partial<T>;
         }),
@@ -394,16 +440,7 @@ export const createWindowSlice = <
                 width: typeof window !== "undefined" ? window.innerWidth : 1280,
                 height: typeof window !== "undefined" ? window.innerHeight : 720,
             };
-            const maximizedBounds = clampWindowBounds(
-                {
-                    x: 0,
-                    y: 0,
-                    width: viewport.width,
-                    height: viewport.height - DEFAULT_TASKBAR_HEIGHT,
-                },
-                viewport,
-                DEFAULT_TASKBAR_HEIGHT,
-            );
+            const maximizedBounds = getMaximizedBounds(viewport);
             const currentBounds =
                 state.windowBoundsById[windowId] ?? windowData.bounds;
             const newZ = state.highestZIndex + 10;

@@ -1,6 +1,4 @@
 import type { MouseEventHandler } from "react";
-import { DesktopIcon } from "./DesktopIcon";
-import { IconPlace } from "./IconPlace";
 import emptyBinImage from "../assets/empty_bin.png";
 import fullBinImage from "../assets/full_bin.png";
 import type {
@@ -8,6 +6,8 @@ import type {
     DesktopItemMetadata,
     DesktopSlotId,
 } from "../types/DesktopRegistry";
+import { DesktopIcon } from "./DesktopIcon";
+import { IconPlace } from "./IconPlace";
 
 interface BinProps {
     swap?: (from: string, to: string) => void;

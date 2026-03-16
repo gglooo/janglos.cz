@@ -9,6 +9,8 @@ export type DesktopItemId =
     | "about-me"
     | "projects"
     | "weather"
+    | "ascii-art"
+    | "black-lodge"
     | "github"
     | "linkedin";
 
@@ -37,6 +39,7 @@ export interface DesktopItemDefinition {
     icon: string;
     name: ContentType;
     iconType: Exclude<IconType, "trash">;
+    hideLabel?: boolean;
     kind: DesktopItemKind;
     hidden?: boolean;
     launch: DesktopLaunchDefinition;

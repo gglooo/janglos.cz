@@ -6,6 +6,7 @@ import { useAppStore } from "../store/appStore";
 import { ContentType, ContentTypes } from "../types/ContentType";
 import {
     getWindowSizeConstraints,
+    isForcedFullscreenTitle,
     type WindowPlacementBounds,
 } from "../utils/windowPlacement";
 
@@ -20,7 +21,10 @@ interface WindowProps {
 }
 
 const windowTabTypes = ContentTypes.filter(
-    (contentType) => contentType !== "Run",
+    (contentType) =>
+        contentType !== "Run" &&
+        contentType !== "Task Manager" &&
+        !isForcedFullscreenTitle(contentType),
 );
 
 export const Window = ({
@@ -43,8 +47,20 @@ export const Window = ({
             s.openWindows.find((windowItem) => windowItem.id === id)?.state ??
             "normal",
     );
+    const isForcedFullscreen = isForcedFullscreenTitle(title);
     const isMaximized = windowState === "maximized";
-    const shouldRenderTabs = title !== "Run";
+    const effectiveMaximized = isMaximized || isForcedFullscreen;
+    const shouldRenderTabs =
+        !isForcedFullscreen &&
+        title !== "Run" &&
+        title !== "Trash" &&
+        title !== "Task Manager";
+
+    React.useEffect(() => {
+        if (isForcedFullscreen && windowState !== "maximized") {
+            maximizeWindow(id);
+        }
+    }, [id, isForcedFullscreen, maximizeWindow, windowState]);
 
     const handleTabClick = (tab: ContentType) => {
         if (title === tab) return;
@@ -61,7 +77,7 @@ export const Window = ({
 
     const content = (
         <>
-            <div className="bg-blue w-full border-b border-b-black text-left flex items-center pb-1">
+            <div className="window-drag-handle bg-blue w-full border-b border-b-black text-left flex items-center pb-1">
                 <h1 className="text-xl text-white mr-4 ml-2 select-none">
                     {title}
                 </h1>
@@ -73,18 +89,20 @@ export const Window = ({
                 >
                     <span className="leading-none text-lg">_</span>
                 </button>
-                <button
-                    type="button"
-                    onClick={() =>
-                        isMaximized ? restoreWindow(id) : maximizeWindow(id)
-                    }
-                    className="border-t-white border-l-white border-2 bg-window mr-1 mt-1 w-7 h-7 text-center flex justify-center items-center hover:bg-grey hover:cursor-pointer"
-                    aria-label={`${isMaximized ? "Restore" : "Maximize"} ${title} window`}
-                >
-                    <span className="leading-none text-base">
-                        {isMaximized ? "[]" : "[ ]"}
-                    </span>
-                </button>
+                {!isForcedFullscreen ? (
+                    <button
+                        type="button"
+                        onClick={() =>
+                            isMaximized ? restoreWindow(id) : maximizeWindow(id)
+                        }
+                        className="border-t-white border-l-white border-2 bg-window mr-1 mt-1 w-7 h-7 text-center flex justify-center items-center hover:bg-grey hover:cursor-pointer"
+                        aria-label={`${isMaximized ? "Restore" : "Maximize"} ${title} window`}
+                    >
+                        <span className="leading-none text-base">
+                            {isMaximized ? "[]" : "[ ]"}
+                        </span>
+                    </button>
+                ) : null}
                 <button
                     type="button"
                     onClick={onClose}
@@ -94,7 +112,11 @@ export const Window = ({
                     <span>X</span>
                 </button>
             </div>
-            <div className="flex flex-col bg-window font-main p-2 w-full h-full cursor-default overflow-hidden sm:overflow-auto lg:overflow-hidden md:overflow-hidden">
+            <div
+                className={`flex flex-col font-main w-full h-full cursor-default overflow-hidden sm:overflow-auto lg:overflow-hidden md:overflow-hidden ${
+                    isForcedFullscreen ? "bg-black p-0" : "bg-window p-2"
+                }`}
+            >
                 {shouldRenderTabs ? (
                     <div className="flex gap-4 border border-r-white border-b-white p-1 pt-0 pb-0 mb-3 text-xl select-none">
                         {windowTabTypes.map((tab) => (
@@ -111,7 +133,15 @@ export const Window = ({
                         ))}
                     </div>
                 ) : null}
-                <div className="overflow-auto pb-10 flex-1">{children}</div>
+                <div
+                    className={`flex-1 ${
+                        isForcedFullscreen
+                            ? "overflow-hidden pb-0"
+                            : "overflow-auto pb-10"
+                    }`}
+                >
+                    {children}
+                </div>
             </div>
         </>
     );
@@ -132,11 +162,12 @@ export const Window = ({
             minWidth={constraints.minWidth}
             position={{ x: bounds.x, y: bounds.y }}
             size={{ width: bounds.width, height: bounds.height }}
-            disableDragging={isMaximized}
-            enableResizing={!isMaximized}
+            disableDragging={effectiveMaximized}
+            dragHandleClassName="window-drag-handle"
+            enableResizing={!effectiveMaximized}
             className={`lg:absolute lg:ml-auto lg:mr-auto font-main border-t-white border-l-white
                 border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
-                row-span-4 overflow-hidden`}
+                row-span-4 overflow-hidden desktop-window-shell`}
             onMouseDown={onMouseDown}
             onDragStop={(_, data) => {
                 updateWindowBounds(id, {
@@ -161,7 +192,7 @@ export const Window = ({
     ) : (
         <div
             className={`fixed left-2 right-2 top-2 bottom-10 z-10 font-main border-t-white border-l-white
-            border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col
+            border-2 sm:relative sm:item-center sm:justify-center col-span-full flex flex-col desktop-window-shell
             row-span-4 row-start-2 overflow-hidden`}
             style={{ zIndex }}
             onClick={onMouseDown}

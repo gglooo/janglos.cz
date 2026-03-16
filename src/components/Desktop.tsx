@@ -1,14 +1,34 @@
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    type MouseEvent,
+    type PointerEvent,
+} from "react";
 import Wallpaper from "../assets/wallpaper.png";
-import { useCallback, type MouseEvent } from "react";
+import { useDesktopMultiDragDrop } from "../hooks/desktop-selection/useDesktopMultiDragDrop";
+import { useDesktopSelectionHitTest } from "../hooks/desktop-selection/useDesktopSelectionHitTest";
+import { useDesktopSelectionMarquee } from "../hooks/desktop-selection/useDesktopSelectionMarquee";
+import { useDesktopSelectionState } from "../hooks/desktop-selection/useDesktopSelectionState";
 import { useDesktopController } from "../hooks/useDesktopController";
 import { useWeather } from "../hooks/useWeather";
 import { DesktopContextMenu } from "./desktop/context-menu/DesktopContextMenu";
 import { useDesktopContextMenu } from "./desktop/context-menu/useDesktopContextMenu";
 import { DesktopGrid } from "./desktop/DesktopGrid";
 import { DesktopWindows } from "./desktop/DesktopWindows";
+import { DesktopMultiDragPreview } from "./desktop/selection/DesktopMultiDragPreview";
+import { DesktopSelectionMarquee } from "./desktop/selection/DesktopSelectionMarquee";
+
+const MARQUEE_DRAG_THRESHOLD_PX = 3;
 
 export const Desktop = () => {
+    const desktopRef = useRef<HTMLDivElement>(null);
+    const pointerDownPositionRef = useRef<{ x: number; y: number } | null>(
+        null,
+    );
+    const suppressNextDesktopClickRef = useRef(false);
     const weather = useWeather();
+    console.log(JSON.stringify(weather.data, null, 2));
     const {
         assignments,
         bringToFront,
@@ -17,6 +37,7 @@ export const Desktop = () => {
         handleIconClick,
         handleMove,
         handleTrashClick,
+        moveDesktopItemsToSlots,
         openWindows,
         registry,
         setStartMenuVisible,
@@ -29,15 +50,68 @@ export const Desktop = () => {
         open: openContextMenu,
         runAction,
     } = useDesktopContextMenu();
+    const { getIntersectingItemIds } = useDesktopSelectionHitTest();
+    const {
+        clearSelection,
+        isSelected,
+        selectOnly,
+        selectedItemIds,
+        setSelection,
+    } = useDesktopSelectionState();
+    const { onDrop } = useDesktopMultiDragDrop({
+        assignments,
+        desktopSlotOrder,
+        selectedItemIds,
+        moveDesktopItem: handleMove,
+        moveDesktopItemsToSlots,
+    });
+    const { marqueeActive, onPointerDown, onPointerMove, selectionRect } =
+        useDesktopSelectionMarquee({
+            desktopRef,
+            resolveSelection: (rect) => {
+                if (!desktopRef.current) {
+                    return [];
+                }
+
+                return getIntersectingItemIds(desktopRef.current, rect);
+            },
+            onSelectionChange: setSelection,
+        });
+
+    useEffect(() => {
+        const resetPointerTracking = () => {
+            pointerDownPositionRef.current = null;
+        };
+
+        window.addEventListener("pointerup", resetPointerTracking);
+        window.addEventListener("pointercancel", resetPointerTracking);
+
+        return () => {
+            window.removeEventListener("pointerup", resetPointerTracking);
+            window.removeEventListener("pointercancel", resetPointerTracking);
+        };
+    }, []);
 
     const hasOpenWindows = openWindows.some(
         (windowData) => windowData.state !== "minimized",
     );
 
-    const handleDesktopClick = useCallback(() => {
-        setStartMenuVisible(false);
-        closeContextMenu();
-    }, [closeContextMenu, setStartMenuVisible]);
+    const handleDesktopClick = useCallback(
+        (event: MouseEvent<HTMLDivElement>) => {
+            setStartMenuVisible(false);
+            closeContextMenu();
+            if (suppressNextDesktopClickRef.current) {
+                suppressNextDesktopClickRef.current = false;
+                return;
+            }
+
+            const target = event.target as HTMLElement;
+            if (!target.closest("[data-desktop-icon-root='true']")) {
+                clearSelection();
+            }
+        },
+        [clearSelection, closeContextMenu, setStartMenuVisible],
+    );
 
     const handleDesktopContextMenu = useCallback(
         (event: MouseEvent<HTMLDivElement>) => {
@@ -47,16 +121,77 @@ export const Desktop = () => {
         [openContextMenu, setStartMenuVisible],
     );
 
+    const handleIconPointerDown = useCallback(
+        (itemId: string) => () => {
+            if (!isSelected(itemId)) {
+                selectOnly(itemId);
+            }
+        },
+        [isSelected, selectOnly],
+    );
+
+    const handleDesktopPointerDown = useCallback(
+        (event: PointerEvent<HTMLDivElement>) => {
+            onPointerDown(event);
+
+            if (event.button !== 0) {
+                pointerDownPositionRef.current = null;
+                return;
+            }
+
+            const target = event.target as HTMLElement;
+            const canStartMarquee =
+                !target.closest("[data-desktop-icon-root='true']") &&
+                !target.closest(".desktop-window-shell");
+
+            if (!canStartMarquee) {
+                pointerDownPositionRef.current = null;
+                return;
+            }
+
+            suppressNextDesktopClickRef.current = false;
+            pointerDownPositionRef.current = {
+                x: event.clientX,
+                y: event.clientY,
+            };
+        },
+        [onPointerDown],
+    );
+
+    const handleDesktopPointerMove = useCallback(
+        (event: PointerEvent<HTMLDivElement>) => {
+            onPointerMove(event);
+
+            const start = pointerDownPositionRef.current;
+            if (!start) {
+                return;
+            }
+
+            const deltaX = Math.abs(event.clientX - start.x);
+            const deltaY = Math.abs(event.clientY - start.y);
+            if (
+                deltaX >= MARQUEE_DRAG_THRESHOLD_PX ||
+                deltaY >= MARQUEE_DRAG_THRESHOLD_PX
+            ) {
+                suppressNextDesktopClickRef.current = true;
+            }
+        },
+        [onPointerMove],
+    );
+
     if (!weather.data) {
         return <div className="bg-desktop"></div>;
     }
 
     return (
         <div
+            ref={desktopRef}
             className="bg-desktop sm:pl-1 h-full w-full grid grid-cols-4
-        sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
-        md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
+        sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 pb-10 box-border grid-rows-6
+        md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row relative"
             onClick={handleDesktopClick}
+            onPointerDown={handleDesktopPointerDown}
+            onPointerMove={handleDesktopPointerMove}
             onContextMenu={handleDesktopContextMenu}
         >
             <img
@@ -70,8 +205,19 @@ export const Desktop = () => {
                 registry={registry}
                 trashCount={trashCount}
                 onMove={handleMove}
+                onDrop={onDrop}
                 onTrashClick={handleTrashClick}
                 onIconClick={handleIconClick}
+                onIconPointerDown={handleIconPointerDown}
+                selectedItemIds={selectedItemIds}
+            />
+            <DesktopSelectionMarquee
+                rect={marqueeActive ? selectionRect : null}
+            />
+            <DesktopMultiDragPreview
+                assignments={assignments}
+                desktopSlotOrder={desktopSlotOrder}
+                registry={registry}
             />
             <DesktopWindows
                 openWindows={openWindows}

@@ -43,7 +43,15 @@ export interface DesktopStoreCompat {
     trashedItemIds?: string[];
     initializeDesktopLayout?: () => void;
     moveDesktopItem?: (fromSlotId: DesktopSlotId, toSlotId: DesktopSlotId) => void;
+    moveDesktopItemsToSlots?: (
+        entries: { itemId: string; slotId: string }[],
+    ) => boolean;
     sendDesktopItemToTrash?: (itemId: DesktopItemId) => void;
+    restoreTrashItem?: (itemId: DesktopItemId) => boolean;
+    restoreTrashItemToSlot?: (
+        itemId: DesktopItemId,
+        slotId: DesktopSlotId,
+    ) => boolean;
     restoreTrashItems?: () => DesktopItemId[];
     launchDesktopItem?: (...args: unknown[]) => void;
 }

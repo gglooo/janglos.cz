@@ -45,7 +45,21 @@ const createState = (): DesktopStoreCompat => ({
     trashItemIds: [],
     moveDesktopItem: vi.fn(),
     sendDesktopItemToTrash: vi.fn(),
+    restoreTrashItem: vi.fn(),
+    restoreTrashItemToSlot: vi.fn(),
     restoreTrashItems: vi.fn(),
+    minimizeAllWindows: function (): void {
+        throw new Error("Function not implemented.");
+    },
+    cascadeWindows: function (): void {
+        throw new Error("Function not implemented.");
+    },
+    tileWindowsHorizontally: function (): void {
+        throw new Error("Function not implemented.");
+    },
+    tileWindowsVertically: function (): void {
+        throw new Error("Function not implemented.");
+    },
 });
 
 describe("useDesktopController shell interactions", () => {
@@ -89,5 +103,33 @@ describe("useDesktopController shell interactions", () => {
             source: "desktop",
         });
         expect(state.openWindow).not.toHaveBeenCalled();
+    });
+
+    it("opens trash window when trash is clicked", () => {
+        const { result } = renderHook(() => useDesktopController());
+
+        act(() => {
+            result.current.handleTrashClick();
+        });
+
+        expect(state.openWindow).toHaveBeenCalledTimes(1);
+        expect(state.openWindow).toHaveBeenCalledWith({
+            title: "Trash",
+            source: "desktop",
+        });
+    });
+
+    it("restores a trash item when dropped from trash list to desktop slot", () => {
+        const { result } = renderHook(() => useDesktopController());
+
+        act(() => {
+            result.current.handleMove("trash-item:projects", "desktop-slot-1");
+        });
+
+        expect(state.restoreTrashItemToSlot).toHaveBeenCalledTimes(1);
+        expect(state.restoreTrashItemToSlot).toHaveBeenCalledWith(
+            "projects",
+            "desktop-slot-1",
+        );
     });
 });

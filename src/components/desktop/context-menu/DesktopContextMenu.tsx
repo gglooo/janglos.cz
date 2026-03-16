@@ -28,7 +28,7 @@ export const DesktopContextMenu = ({
 
     return (
         <div
-            className="fixed z-[1150] min-w-[200px] border-2 border-t-white border-l-white border-r-black border-b-black bg-window p-[2px] font-main text-lg"
+            className="fixed z-1150 min-w-50 border-2 border-t-white border-l-white border-r-black border-b-black bg-window p-0.5 font-main text-lg"
             style={style}
             onMouseDown={(event) => event.stopPropagation()}
             onClick={(event) => event.stopPropagation()}
@@ -50,7 +50,7 @@ export const DesktopContextMenu = ({
             >
                 Show desktop
             </button>
-            <div className="mx-1 my-[2px] border-t border-grey" />
+            <div className="mx-1 my-0.5 border-t border-grey" />
             <button
                 type="button"
                 className={menuButtonClassName}

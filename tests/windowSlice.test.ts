@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { createStore } from "zustand/vanilla";
-import { createWindowSlice, type WindowSlice } from "../src/store/slices/windowSlice";
+import {
+    createWindowSlice,
+    type WindowSlice,
+} from "../src/store/slices/windowSlice";
 
 type WindowTestStore = WindowSlice;
 
 const ABOUT = "About\u00A0me" as const;
 const PROJECTS = "Projects" as const;
+const BLACK_LODGE = "The Black Lodge" as const;
 
 const createWindowStore = () =>
     createStore<WindowTestStore>()((...args) => ({
@@ -63,5 +67,34 @@ describe("windowSlice shell interactions", () => {
         expect(state.highestZIndex).toBe(50);
         expect(state.windowZIndexes[firstWindowId]).toBe(40);
         expect(state.windowZIndexes[secondWindowId]).toBe(50);
+    });
+
+    it("forces Black Lodge windows to open and reopen as maximized", () => {
+        const store = createWindowStore();
+
+        store.getState().openWindow({ title: BLACK_LODGE, source: "desktop" });
+
+        let state = store.getState();
+        const windowData = state.openWindows[0];
+        if (!windowData) {
+            throw new Error("Expected Black Lodge window to exist");
+        }
+
+        expect(windowData.state).toBe("maximized");
+        expect(windowData.bounds.x).toBe(0);
+        expect(windowData.bounds.y).toBe(0);
+
+        const blackLodgeWindowId = windowData.id;
+        store.getState().minimizeWindow(blackLodgeWindowId);
+        store
+            .getState()
+            .openWindow({ title: BLACK_LODGE, source: "start-menu" });
+
+        state = store.getState();
+        expect(state.openWindows).toHaveLength(1);
+        expect(state.openWindows[0]?.id).toBe(blackLodgeWindowId);
+        expect(state.openWindows[0]?.state).toBe("maximized");
+        expect(state.windowBoundsById[blackLodgeWindowId]?.x).toBe(0);
+        expect(state.windowBoundsById[blackLodgeWindowId]?.y).toBe(0);
     });
 });

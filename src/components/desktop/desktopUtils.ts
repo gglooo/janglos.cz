@@ -31,6 +31,7 @@ const defaultDesktopRegistry: Record<string, DesktopItemDefinition> =
             name: item.name,
             title: item.name,
             type: item.iconType,
+            hideLabel: item.hideLabel,
             hidden: item.hidden,
             onClick,
             launch:

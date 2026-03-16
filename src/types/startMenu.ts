@@ -1,12 +1,6 @@
 import type { ContentType } from "./ContentType";
 
 export type StartMenuCommandId =
-    | "documents"
-    | "settings-control-panel"
-    | "settings-taskbar"
-    | "find-files"
-    | "find-computer"
-    | "help"
     | "run"
     | "shutdown";
 
@@ -14,8 +8,10 @@ export type StartMenuRunAlias =
     | "about"
     | "projects"
     | "weather"
+    | "ascii"
     | "github"
-    | "linkedin";
+    | "linkedin"
+    | "task-manager";
 
 export interface StartMenuOpenWindowAction {
     type: "open-window";

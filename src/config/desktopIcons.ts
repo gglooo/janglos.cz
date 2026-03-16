@@ -12,16 +12,19 @@ import {
     type DesktopSlotId,
 } from "../types/desktop";
 
+import AsciiArtIcon from "../assets/ascii_art_icon.svg";
+import BlackLodgeIcon from "../assets/black_lodge_icon.svg";
+import GitHubIcon from "../assets/github.png";
 import GlobeIcon from "../assets/globe.png";
+import LinkedInIcon from "../assets/linkedin.png";
 import ProjectsIcon from "../assets/projects.png";
 import WeatherIcon from "../assets/weather.png";
-import GitHubIcon from "../assets/github.png";
-import LinkedInIcon from "../assets/linkedin.png";
 
 export interface DesktopIconConfig {
     icon: string;
     name: ContentType;
     type?: IconType;
+    hideLabel?: boolean;
     onClick?: VoidFunction;
     hidden?: boolean;
 }
@@ -86,6 +89,29 @@ const desktopItemRegistry: Record<DesktopItemId, DesktopItemDefinition> = {
             target: "_blank",
         },
     },
+    "black-lodge": {
+        id: "black-lodge",
+        icon: BlackLodgeIcon,
+        name: "The Black Lodge",
+        iconType: "normal",
+        hideLabel: true,
+        kind: "window",
+        launch: {
+            type: "window",
+            content: "The Black Lodge",
+        },
+    },
+    "ascii-art": {
+        id: "ascii-art",
+        icon: AsciiArtIcon,
+        name: "ASCII Art",
+        iconType: "normal",
+        kind: "window",
+        launch: {
+            type: "window",
+            content: "ASCII Art",
+        },
+    },
 };
 
 const desktopItemIds = Object.keys(desktopItemRegistry) as DesktopItemId[];
@@ -99,15 +125,18 @@ const desktopSlotOrder: DesktopSlotId[] = [
 
 const desktopSlotAssignments = desktopSlotOrder.reduce<
     Record<DesktopSlotId, DesktopSlotAssignment>
->((assignments, slotId, index) => {
-    if (slotId === DESKTOP_TRASH_SLOT_ID) {
-        assignments[slotId] = DESKTOP_TRASH_ENTRY_ID;
-        return assignments;
-    }
+>(
+    (assignments, slotId, index) => {
+        if (slotId === DESKTOP_TRASH_SLOT_ID) {
+            assignments[slotId] = DESKTOP_TRASH_ENTRY_ID;
+            return assignments;
+        }
 
-    assignments[slotId] = desktopItemIds[index - 1] ?? null;
-    return assignments;
-}, {} as Record<DesktopSlotId, DesktopSlotAssignment>);
+        assignments[slotId] = desktopItemIds[index - 1] ?? null;
+        return assignments;
+    },
+    {} as Record<DesktopSlotId, DesktopSlotAssignment>,
+);
 
 export const desktopRegistrySeed: DesktopRegistrySeed = {
     itemIds: desktopItemIds,
@@ -136,16 +165,16 @@ export const getLaunchHandler = (launch: DesktopLaunchDefinition) => {
     return undefined;
 };
 
-export const desktopIcons: DesktopIconConfig[] = desktopRegistrySeed.itemIds.map(
-    (itemId) => {
+export const desktopIcons: DesktopIconConfig[] =
+    desktopRegistrySeed.itemIds.map((itemId) => {
         const item = desktopRegistrySeed.itemRegistry[itemId];
 
         return {
             icon: item.icon,
             name: item.name,
             type: item.iconType,
+            hideLabel: item.hideLabel,
             onClick: getLaunchHandler(item.launch),
             hidden: item.hidden,
         };
-    }
-);
+    });

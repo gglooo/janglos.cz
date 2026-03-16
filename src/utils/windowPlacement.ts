@@ -40,6 +40,12 @@ export const DEFAULT_TASKBAR_HEIGHT = 32;
 const TITLEBAR_VISIBLE_MARGIN = 28;
 const CASCADE_OFFSET = 24;
 const MOBILE_BREAKPOINT = 768;
+const FORCED_FULLSCREEN_TITLES: ReadonlySet<ContentType> = new Set([
+    "The Black Lodge",
+]);
+
+export const isForcedFullscreenTitle = (title: ContentType) =>
+    FORCED_FULLSCREEN_TITLES.has(title);
 
 const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), max);
@@ -68,9 +74,27 @@ export const getWindowSizeConstraints = (
         };
     }
 
+    if (title === "Trash") {
+        return {
+            width: isCompactViewport ? 760 : 860,
+            height: isCompactViewport ? 520 : 620,
+            minWidth: 620,
+            minHeight: 280,
+        };
+    }
+
+    if (title === "ASCII Art") {
+        return {
+            width: isCompactViewport ? 760 : 960,
+            height: isCompactViewport ? 520 : 640,
+            minWidth: 560,
+            minHeight: 360,
+        };
+    }
+
     return {
-        width: isCompactViewport ? 360 : 400,
-        height: isCompactViewport ? 280 : 300,
+        width: isCompactViewport ? 360 : 450,
+        height: isCompactViewport ? 280 : 350,
         minWidth: 320,
         minHeight: 80,
     };
@@ -188,13 +212,18 @@ export const getDefaultWindowBounds = (
         (typeof window !== "undefined"
             ? { width: window.innerWidth, height: window.innerHeight }
             : { width: 1280, height: 720 });
-    const constraints = getWindowSizeConstraints(title, effectiveViewport.width);
+    const constraints = getWindowSizeConstraints(
+        title,
+        effectiveViewport.width,
+    );
 
     return clampWindowBounds(
         {
             x: (effectiveViewport.width - constraints.width) / 2,
             y:
-                (effectiveViewport.height - taskbarHeight - constraints.height) /
+                (effectiveViewport.height -
+                    taskbarHeight -
+                    constraints.height) /
                 2,
             width: constraints.width,
             height: constraints.height,
