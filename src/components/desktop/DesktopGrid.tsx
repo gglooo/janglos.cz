@@ -28,6 +28,8 @@ interface DesktopGridProps {
     }) => void;
     onTrashClick: VoidFunction;
     onIconClick: (itemId: string) => MouseEventHandler<HTMLDivElement>;
+    onIconContextMenu: (itemId: string) => MouseEventHandler<HTMLDivElement>;
+    onTrashContextMenu: MouseEventHandler<HTMLDivElement>;
     onIconPointerDown: (itemId: string) => PointerEventHandler<HTMLDivElement>;
     selectedItemIds: string[];
 }
@@ -41,6 +43,8 @@ export const DesktopGrid = ({
     onDrop,
     onTrashClick,
     onIconClick,
+    onIconContextMenu,
+    onTrashContextMenu,
     onIconPointerDown,
     selectedItemIds,
 }: DesktopGridProps) => (
@@ -66,6 +70,7 @@ export const DesktopGrid = ({
                             name={"Trash"}
                             type={"trash"}
                             onClick={onTrashClick}
+                            onContextMenu={onTrashContextMenu}
                             index={slotId}
                             key={`${slotId}-trash`}
                         />
@@ -130,6 +135,7 @@ export const DesktopGrid = ({
                         }
                         onPointerDown={onIconPointerDown(assignedItemId)}
                         onDoubleClick={onIconClick(assignedItemId)}
+                        onContextMenu={onIconContextMenu(assignedItemId)}
                         index={slotId}
                         key={assignedItemId}
                     />

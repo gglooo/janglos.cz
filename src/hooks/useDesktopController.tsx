@@ -1,3 +1,7 @@
+import type {
+    DesktopIconContextAction,
+    DesktopIconContextTarget,
+} from "../components/desktop/context-menu/iconMenuTypes";
 import { useDesktopStore } from "../components/desktop/desktopStore";
 import {
     BIN_ASSIGNMENT_ID,
@@ -6,9 +10,8 @@ import {
     defaultDesktopSlotOrder,
     normalizeDesktopRegistry,
     resolveAssignmentItemId,
-    resolveLaunchUrl,
-    resolveWindowTitle,
 } from "../components/desktop/desktopUtils";
+import { createDesktopActionHandlerFactory } from "./desktop-actions/createDesktopActionHandlerFactory";
 import type { DesktopItemId, DesktopSlotId } from "../types/desktop";
 
 const TRASH_DRAG_SOURCE_PREFIX = "trash-item:";
@@ -44,6 +47,7 @@ export const useDesktopController = () => {
         (s) => s.restoreTrashItemToSlot,
     );
     const launchDesktopItem = useDesktopStore((s) => s.launchDesktopItem);
+    const showShellDialog = useDesktopStore((s) => s.showShellDialog);
 
     const registry = normalizeDesktopRegistry(desktopItemRegistry);
     const effectiveTrashItemIds = trashItemIds ?? [];
@@ -56,34 +60,23 @@ export const useDesktopController = () => {
         );
     const trashCount = effectiveTrashItemIds.length;
 
+    const createActionHandler = createDesktopActionHandlerFactory({
+        registry,
+        launchDesktopItem,
+        openWindow,
+        sendDesktopItemToTrash,
+        showShellDialog,
+    });
+
+    const handleDesktopTargetAction = (
+        target: DesktopIconContextTarget,
+        action: DesktopIconContextAction,
+    ) => {
+        createActionHandler(target, action)();
+    };
+
     const handleIconClick = (itemId: string) => () => {
-        const item = registry[itemId];
-        if (!item) {
-            return;
-        }
-
-        if (launchDesktopItem) {
-            launchDesktopItem({ itemId, source: "desktop" });
-            return;
-        }
-
-        const launchUrl = resolveLaunchUrl(item);
-        if (launchUrl) {
-            window.open(launchUrl);
-            return;
-        }
-
-        if (item.onClick) {
-            item.onClick();
-            return;
-        }
-
-        const title = resolveWindowTitle(item);
-        if (!title) {
-            return;
-        }
-
-        openWindow({ title, source: "desktop" });
+        handleDesktopTargetAction({ kind: "item", itemId }, "open");
     };
 
     const handleMove = (fromSlotId: string, toSlotId: string) => {
@@ -122,7 +115,7 @@ export const useDesktopController = () => {
     };
 
     const handleTrashClick = () => {
-        openWindow({ title: "Trash", source: "desktop" });
+        handleDesktopTargetAction({ kind: "trash" }, "open");
     };
 
     return {
@@ -130,6 +123,7 @@ export const useDesktopController = () => {
         bringToFront,
         closeWindow,
         desktopSlotOrder,
+        handleDesktopTargetAction,
         handleIconClick,
         handleMove,
         handleTrashClick,

@@ -11,9 +11,11 @@ import { useDesktopSelectionHitTest } from "../hooks/desktop-selection/useDeskto
 import { useDesktopSelectionMarquee } from "../hooks/desktop-selection/useDesktopSelectionMarquee";
 import { useDesktopSelectionState } from "../hooks/desktop-selection/useDesktopSelectionState";
 import { useDesktopController } from "../hooks/useDesktopController";
-import { useWeather } from "../hooks/useWeather";
 import { DesktopContextMenu } from "./desktop/context-menu/DesktopContextMenu";
+import { DesktopIconContextMenu } from "./desktop/context-menu/DesktopIconContextMenu";
+import type { DesktopIconContextAction } from "./desktop/context-menu/iconMenuTypes";
 import { useDesktopContextMenu } from "./desktop/context-menu/useDesktopContextMenu";
+import { useDesktopIconContextMenu } from "./desktop/context-menu/useDesktopIconContextMenu";
 import { DesktopGrid } from "./desktop/DesktopGrid";
 import { DesktopWindows } from "./desktop/DesktopWindows";
 import { DesktopMultiDragPreview } from "./desktop/selection/DesktopMultiDragPreview";
@@ -27,13 +29,13 @@ export const Desktop = () => {
         null,
     );
     const suppressNextDesktopClickRef = useRef(false);
-    const weather = useWeather();
 
     const {
         assignments,
         bringToFront,
         closeWindow,
         desktopSlotOrder,
+        handleDesktopTargetAction,
         handleIconClick,
         handleMove,
         handleTrashClick,
@@ -50,6 +52,11 @@ export const Desktop = () => {
         open: openContextMenu,
         runAction,
     } = useDesktopContextMenu();
+    const {
+        menuState: iconContextMenuState,
+        close: closeIconContextMenu,
+        openForTarget: openIconContextMenuForTarget,
+    } = useDesktopIconContextMenu();
     const { getIntersectingItemIds } = useDesktopSelectionHitTest();
     const {
         clearSelection,
@@ -100,6 +107,7 @@ export const Desktop = () => {
         (event: MouseEvent<HTMLDivElement>) => {
             setStartMenuVisible(false);
             closeContextMenu();
+            closeIconContextMenu();
             if (suppressNextDesktopClickRef.current) {
                 suppressNextDesktopClickRef.current = false;
                 return;
@@ -110,15 +118,69 @@ export const Desktop = () => {
                 clearSelection();
             }
         },
-        [clearSelection, closeContextMenu, setStartMenuVisible],
+        [
+            clearSelection,
+            closeContextMenu,
+            closeIconContextMenu,
+            setStartMenuVisible,
+        ],
     );
 
     const handleDesktopContextMenu = useCallback(
         (event: MouseEvent<HTMLDivElement>) => {
             setStartMenuVisible(false);
+            closeIconContextMenu();
             openContextMenu(event);
         },
-        [openContextMenu, setStartMenuVisible],
+        [closeIconContextMenu, openContextMenu, setStartMenuVisible],
+    );
+
+    const handleDesktopItemContextMenu = useCallback(
+        (itemId: string) => (event: MouseEvent<HTMLDivElement>) => {
+            setStartMenuVisible(false);
+            closeContextMenu();
+            selectOnly(itemId);
+            openIconContextMenuForTarget(event, { kind: "item", itemId });
+        },
+        [
+            closeContextMenu,
+            openIconContextMenuForTarget,
+            selectOnly,
+            setStartMenuVisible,
+        ],
+    );
+
+    const handleTrashContextMenu = useCallback(
+        (event: MouseEvent<HTMLDivElement>) => {
+            setStartMenuVisible(false);
+            closeContextMenu();
+            clearSelection();
+            openIconContextMenuForTarget(event, { kind: "trash" });
+        },
+        [
+            clearSelection,
+            closeContextMenu,
+            openIconContextMenuForTarget,
+            setStartMenuVisible,
+        ],
+    );
+
+    const handleIconContextAction = useCallback(
+        (action: DesktopIconContextAction) => {
+            const target = iconContextMenuState?.target;
+            if (!target) {
+                return;
+            }
+
+            if (action === "open") {
+                handleDesktopTargetAction(target, "open");
+            } else {
+                handleDesktopTargetAction(target, "delete");
+            }
+
+            closeIconContextMenu();
+        },
+        [closeIconContextMenu, handleDesktopTargetAction, iconContextMenuState],
     );
 
     const handleIconPointerDown = useCallback(
@@ -204,6 +266,8 @@ export const Desktop = () => {
                 onDrop={onDrop}
                 onTrashClick={handleTrashClick}
                 onIconClick={handleIconClick}
+                onIconContextMenu={handleDesktopItemContextMenu}
+                onTrashContextMenu={handleTrashContextMenu}
                 onIconPointerDown={handleIconPointerDown}
                 selectedItemIds={selectedItemIds}
             />
@@ -226,6 +290,12 @@ export const Desktop = () => {
                     position={contextMenuPosition}
                     hasOpenWindows={hasOpenWindows}
                     onAction={runAction}
+                />
+            ) : null}
+            {iconContextMenuState ? (
+                <DesktopIconContextMenu
+                    position={iconContextMenuState.position}
+                    onAction={handleIconContextAction}
                 />
             ) : null}
         </div>

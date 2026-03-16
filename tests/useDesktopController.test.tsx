@@ -36,6 +36,8 @@ const createState = (): DesktopStoreCompat => ({
     maximizeWindow: vi.fn(),
     restoreWindow: vi.fn(),
     setStartMenuVisible: vi.fn(),
+    showShellDialog: vi.fn(),
+    hideShellDialog: vi.fn(),
     desktopItemRegistry: registry,
     desktopSlotOrder: ["desktop-trash", "desktop-slot-1"],
     desktopSlotAssignments: {
@@ -116,6 +118,37 @@ describe("useDesktopController shell interactions", () => {
         expect(state.openWindow).toHaveBeenCalledWith({
             title: "Trash",
             source: "desktop",
+        });
+    });
+
+    it("sends a desktop item to trash from context delete action", () => {
+        const { result } = renderHook(() => useDesktopController());
+
+        act(() => {
+            result.current.handleDesktopTargetAction(
+                { kind: "item", itemId: "projects" },
+                "delete",
+            );
+        });
+
+        expect(state.sendDesktopItemToTrash).toHaveBeenCalledTimes(1);
+        expect(state.sendDesktopItemToTrash).toHaveBeenCalledWith("projects");
+    });
+
+    it("shows a shell error dialog when deleting trash is attempted", () => {
+        const { result } = renderHook(() => useDesktopController());
+
+        act(() => {
+            result.current.handleDesktopTargetAction(
+                { kind: "trash" },
+                "delete",
+            );
+        });
+
+        expect(state.showShellDialog).toHaveBeenCalledTimes(1);
+        expect(state.showShellDialog).toHaveBeenCalledWith({
+            title: "Error",
+            message: "Cannot delete Trash.",
         });
     });
 

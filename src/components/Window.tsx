@@ -17,6 +17,7 @@ interface WindowProps {
     onClose: () => void;
     bounds: WindowPlacementBounds;
     zIndex: number;
+    isActive: boolean;
     onMouseDown: () => void;
 }
 
@@ -34,6 +35,7 @@ export const Window = ({
     onClose,
     bounds,
     zIndex,
+    isActive,
     onMouseDown,
 }: WindowProps) => {
     const isMobile = useIsMobile();
@@ -77,8 +79,16 @@ export const Window = ({
 
     const content = (
         <>
-            <div className="window-drag-handle bg-blue w-full border-b border-b-black text-left flex items-center pb-1">
-                <h1 className="text-xl text-white mr-4 ml-2 select-none">
+            <div
+                className={`window-drag-handle w-full border-b border-b-black text-left flex items-center pb-1 ${
+                    isActive ? "bg-blue" : "bg-grey"
+                }`}
+            >
+                <h1
+                    className={`text-xl mr-4 ml-2 select-none ${
+                        isActive ? "text-white" : "text-black"
+                    }`}
+                >
                     {title}
                 </h1>
                 <button

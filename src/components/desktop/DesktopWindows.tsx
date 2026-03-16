@@ -22,11 +22,26 @@ export const DesktopWindows = ({
     closeWindow,
     windowZIndexes,
     bringToFront,
-}: DesktopWindowsProps) => (
-    <>
-        {openWindows
-            .filter((windowData) => windowData.state !== "minimized")
-            .map((windowData) => (
+}: DesktopWindowsProps) => {
+    const visibleWindows = openWindows.filter(
+        (windowData) => windowData.state !== "minimized",
+    );
+    const activeWindowId = visibleWindows.reduce<number | null>(
+        (topId, windowData) => {
+            if (topId === null) {
+                return windowData.id;
+            }
+
+            const currentZ = windowZIndexes[windowData.id] ?? 10;
+            const topZ = windowZIndexes[topId] ?? 10;
+            return currentZ >= topZ ? windowData.id : topId;
+        },
+        null,
+    );
+
+    return (
+        <>
+            {visibleWindows.map((windowData) => (
                 <Window
                     key={windowData.id}
                     id={windowData.id}
@@ -34,6 +49,7 @@ export const DesktopWindows = ({
                     onClose={() => closeWindow(windowData.id)}
                     bounds={windowData.bounds}
                     zIndex={windowZIndexes[windowData.id] ?? 10}
+                    isActive={windowData.id === activeWindowId}
                     onMouseDown={() => bringToFront(windowData.id)}
                 >
                     {renderWindowContent({
@@ -42,5 +58,6 @@ export const DesktopWindows = ({
                     })}
                 </Window>
             ))}
-    </>
-);
+        </>
+    );
+};

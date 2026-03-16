@@ -2,6 +2,7 @@ import { bootSequence } from "../../hooks/boot/bootConfig";
 import { useBootSequence } from "../../hooks/boot/useBootSequence";
 import BootScreen from "../BootScreen";
 import Desktop from "../Desktop";
+import { ShellDialogHost } from "../shell/ShellDialogHost";
 import { StartBar } from "../StartBar";
 
 export const BootShell = () => {
@@ -30,6 +31,7 @@ export const BootShell = () => {
                 <>
                     <Desktop />
                     <StartBar />
+                    <ShellDialogHost />
                 </>
             )}
         </div>

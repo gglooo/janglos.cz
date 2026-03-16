@@ -23,6 +23,7 @@ interface DesktopIconProps {
     onPointerDown?: PointerEventHandler<HTMLDivElement>;
     onClick?: MouseEventHandler<HTMLDivElement>;
     onDoubleClick?: MouseEventHandler<HTMLDivElement>;
+    onContextMenu?: MouseEventHandler<HTMLDivElement>;
 }
 
 export const DesktopIcon = ({
@@ -39,6 +40,7 @@ export const DesktopIcon = ({
     onPointerDown,
     onClick,
     onDoubleClick,
+    onContextMenu,
 }: DesktopIconProps) => {
     const isMobile = useIsMobile();
     const resolvedType = metadata?.type ?? type ?? "normal";
@@ -82,6 +84,7 @@ export const DesktopIcon = ({
             onDoubleClick={handleDoubleClick}
             onClick={handleClick}
             onPointerDown={onPointerDown}
+            onContextMenu={onContextMenu}
             ref={(node) => {
                 drag(node);
             }}

@@ -129,6 +129,7 @@ const createAppState: StateCreator<StoreState, [], [], StoreState> = (
             ...defaults,
             restoreBoundsById: {},
             isStartMenuVisible: false,
+            shellDialog: null,
         } as Partial<StoreState>);
     },
 });

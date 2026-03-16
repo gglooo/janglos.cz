@@ -94,7 +94,7 @@ const formatWindowState = (state: WindowData["state"]) =>
         ? "Maximized"
         : state === "minimized"
           ? "Minimized"
-          : "Normal";
+          : "";
 
 export const TaskManagerWindow = () => {
     const openWindows = useAppStore((s) => s.openWindows);

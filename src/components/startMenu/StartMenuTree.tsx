@@ -20,7 +20,7 @@ export const StartMenuTree = ({
     return (
         <div
             role="menu"
-            className="bg-window border-2 border-t-white border-l-white border-r-black border-b-black shadow-sm max-w-[calc(100vw-20px)] w-[min(260px,calc(100vw-20px))] sm:w-auto sm:min-w-[220px]"
+            className="bg-window border-2 border-t-white border-l-white border-r-black border-b-black shadow-sm max-w-[calc(100vw-20px)] w-[min(320px,calc(100vw-20px))] sm:w-auto sm:min-w-[280px]"
         >
             {nodes.map((node, index) => {
                 const nodePath = [...parentPath, index];

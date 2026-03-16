@@ -34,6 +34,8 @@ export interface DesktopStoreCompat {
     tileWindowsHorizontally: () => void;
     tileWindowsVertically: () => void;
     setStartMenuVisible: (visible: boolean) => void;
+    showShellDialog: (payload: { title: string; message: string }) => void;
+    hideShellDialog: () => void;
     desktopItemRegistry?: DesktopItemRegistry;
     desktopSlotOrder?: string[];
     desktopSlots?: string[];
