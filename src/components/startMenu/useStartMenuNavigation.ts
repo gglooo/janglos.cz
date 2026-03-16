@@ -43,7 +43,7 @@ export const useStartMenuNavigation = ({
                 const isSubmenuExpanded =
                     focusPath.length >= path.length &&
                     isPrefixPath(path, focusPath);
-                console.log({ node, focusPath, path, isSubmenuExpanded });
+
                 if (isSubmenuExpanded) {
                     setFocusPath(path.slice(0, -1));
                     return;

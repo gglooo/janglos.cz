@@ -28,7 +28,7 @@ export const Desktop = () => {
     );
     const suppressNextDesktopClickRef = useRef(false);
     const weather = useWeather();
-    console.log(JSON.stringify(weather.data, null, 2));
+
     const {
         assignments,
         bringToFront,
