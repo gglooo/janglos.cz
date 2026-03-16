@@ -1,257 +1,240 @@
-import { useEffect, useState } from "react";
-import { DesktopIcon } from "./DesktopIcon";
-import Window from "./Window";
-import About from "./About";
-import Projects from "./Projects";
-import { ContentType } from "../types/ContentType";
-import Weather from "./Weather";
-import { WeatherResponse } from "../types/WeatherResponse";
-import { IconPlace } from "./IconPlace";
-import { IconType } from "../types/IconType";
-import Bin from "./Bin";
-import { trashContentAtom } from "../atoms/TrashContentAtom";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { openWindowsAtom } from "../atoms/OpenWindows";
-import { v4 as uuidv4 } from "uuid";
-import { iStartMenuVisible } from "../atoms/StartMenuVisible";
-
-import GlobeIcon from "../assets/globe.png";
-import ProjectsIcon from "../assets/projects.png";
-import WeatherIcon from "../assets/weather.png";
-import GitHubIcon from "../assets/github.png";
-import LinkedInIcon from "../assets/linkedin.png";
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    type MouseEvent,
+    type PointerEvent,
+} from "react";
 import Wallpaper from "../assets/wallpaper.png";
-import { openWindowComponents } from "../atoms/OpenWindowComponents";
-import { highestZIndexAtom } from "../atoms/HighestZIndex";
+import { useDesktopMultiDragDrop } from "../hooks/desktop-selection/useDesktopMultiDragDrop";
+import { useDesktopSelectionHitTest } from "../hooks/desktop-selection/useDesktopSelectionHitTest";
+import { useDesktopSelectionMarquee } from "../hooks/desktop-selection/useDesktopSelectionMarquee";
+import { useDesktopSelectionState } from "../hooks/desktop-selection/useDesktopSelectionState";
+import { useDesktopController } from "../hooks/useDesktopController";
+import { useWeather } from "../hooks/useWeather";
+import { DesktopContextMenu } from "./desktop/context-menu/DesktopContextMenu";
+import { useDesktopContextMenu } from "./desktop/context-menu/useDesktopContextMenu";
+import { DesktopGrid } from "./desktop/DesktopGrid";
+import { DesktopWindows } from "./desktop/DesktopWindows";
+import { DesktopMultiDragPreview } from "./desktop/selection/DesktopMultiDragPreview";
+import { DesktopSelectionMarquee } from "./desktop/selection/DesktopSelectionMarquee";
+
+const MARQUEE_DRAG_THRESHOLD_PX = 3;
 
 export const Desktop = () => {
-    const [weather, setWeather] = useState<WeatherResponse | null>(null);
-    const [windows, setWindows] = useRecoilState(openWindowsAtom);
-    const setWindowComponents = useSetRecoilState(openWindowComponents);
-    const setTrashContent = useSetRecoilState(trashContentAtom);
-    const setIsMenuVisible = useSetRecoilState(iStartMenuVisible);
-    const [highestZIndex, setHighestZIndex] = useRecoilState(highestZIndexAtom);
-    const [windowZIndexes, setWindowZIndexes] = useState<{
-        [key: number]: number;
-    }>({});
+    const desktopRef = useRef<HTMLDivElement>(null);
+    const pointerDownPositionRef = useRef<{ x: number; y: number } | null>(
+        null,
+    );
+    const suppressNextDesktopClickRef = useRef(false);
+    const weather = useWeather();
+    console.log(JSON.stringify(weather.data, null, 2));
+    const {
+        assignments,
+        bringToFront,
+        closeWindow,
+        desktopSlotOrder,
+        handleIconClick,
+        handleMove,
+        handleTrashClick,
+        moveDesktopItemsToSlots,
+        openWindows,
+        registry,
+        setStartMenuVisible,
+        trashCount,
+        windowZIndexes,
+    } = useDesktopController();
+    const {
+        position: contextMenuPosition,
+        close: closeContextMenu,
+        open: openContextMenu,
+        runAction,
+    } = useDesktopContextMenu();
+    const { getIntersectingItemIds } = useDesktopSelectionHitTest();
+    const {
+        clearSelection,
+        isSelected,
+        selectOnly,
+        selectedItemIds,
+        setSelection,
+    } = useDesktopSelectionState();
+    const { onDrop } = useDesktopMultiDragDrop({
+        assignments,
+        desktopSlotOrder,
+        selectedItemIds,
+        moveDesktopItem: handleMove,
+        moveDesktopItemsToSlots,
+    });
+    const { marqueeActive, onPointerDown, onPointerMove, selectionRect } =
+        useDesktopSelectionMarquee({
+            desktopRef,
+            resolveSelection: (rect) => {
+                if (!desktopRef.current) {
+                    return [];
+                }
 
-    const updateWindowZIndex = (windowId: number) =>
-        setHighestZIndex((highest) => {
-            setWindowZIndexes((prevZIndexes) => ({
-                ...prevZIndexes,
-                [windowId]: highest + 10,
-            }));
-            return highest + 10;
+                return getIntersectingItemIds(desktopRef.current, rect);
+            },
+            onSelectionChange: setSelection,
         });
-
-    const swap = (from: string, to: string) => {
-        setDesktop((desktop) => {
-            const indices = desktop.map((elem) => elem.props.index);
-
-            const fromElementIndex = indices.findIndex((i) => i === from);
-            const toElementIndex = indices.findIndex((i) => i === to);
-
-            const newDesktop = [...desktop];
-
-            // handle bin, bin will always be id 0
-            if (to == "0" && from != "0") {
-                setTrashContent((trashContent) => [
-                    ...trashContent,
-                    newDesktop[fromElementIndex],
-                ]);
-
-                const uuid = uuidv4();
-                newDesktop[fromElementIndex] = (
-                    <IconPlace key={uuid} index={uuid} move={swap} />
-                );
-                return newDesktop;
-            }
-
-            const temp = newDesktop[fromElementIndex];
-            newDesktop[fromElementIndex] = newDesktop[toElementIndex];
-            newDesktop[toElementIndex] = temp;
-
-            return newDesktop;
-        });
-    };
 
     useEffect(() => {
-        fetch(
-            "https://api.weatherapi.com/v1/current.json?q=Brno&key=" +
-                "4429d0cf53674ceb927153811232905"
-        )
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error: status ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data) => setWeather(data))
-            .catch((error) => console.log(error));
+        const resetPointerTracking = () => {
+            pointerDownPositionRef.current = null;
+        };
+
+        window.addEventListener("pointerup", resetPointerTracking);
+        window.addEventListener("pointercancel", resetPointerTracking);
+
+        return () => {
+            window.removeEventListener("pointerup", resetPointerTracking);
+            window.removeEventListener("pointercancel", resetPointerTracking);
+        };
     }, []);
 
-    const windowComponents = {
-        "About\u00A0me": About,
-        Projects: Projects,
-        Weather: () => Weather(weather!),
-        LinkedIn: () => <></>,
-        GitHub: () => <></>,
-    };
-
-    const createWindow = (newWindow: {
-        id: number;
-        title: ContentType;
-        initialPosition: { x: number; y: number };
-    }) => {
-        setWindows((windows) => [...windows, newWindow]);
-    };
-
-    const closeWindow = (id: number) => {
-        setWindows(windows.filter((window) => window.id !== id));
-    };
-
-    const onTrashClick = () => {
-        setTrashContent((trashContent) => {
-            setDesktop((desktop) => placeFromBin(trashContent, desktop));
-            return [];
-        });
-    };
-
-    let icons = [
-        <Bin swap={swap} key={"0"} index={"0"} onClick={onTrashClick} />,
-    ];
-    icons = icons.concat(
-        desktopIcons.map((icon, i) => {
-            const id = uuidv4();
-            return (
-                <IconPlace key={id} index={id} move={swap}>
-                    <DesktopIcon
-                        icon={icon.icon}
-                        name={icon.name}
-                        type={icon.type ?? "normal"}
-                        onClick={
-                            icon.onClick ??
-                            ((event) => {
-                                // since these windows are created by the user's click, it should be
-                                // safe to use the timestamp as the id/key.
-                                createWindow({
-                                    id: event.timeStamp,
-                                    title: icon.name,
-                                    initialPosition: {
-                                        x: event.clientX,
-                                        y: event.clientY,
-                                    },
-                                });
-                            })
-                        }
-                        index={id}
-                        key={id}
-                    />
-                </IconPlace>
-            );
-        })
+    const hasOpenWindows = openWindows.some(
+        (windowData) => windowData.state !== "minimized",
     );
 
-    const maxCells = 8 * 16;
-    for (let i = icons.length; i < maxCells; i++) {
-        const id = uuidv4();
-        icons.push(<IconPlace key={id} index={id} move={swap}></IconPlace>);
-    }
+    const handleDesktopClick = useCallback(
+        (event: MouseEvent<HTMLDivElement>) => {
+            setStartMenuVisible(false);
+            closeContextMenu();
+            if (suppressNextDesktopClickRef.current) {
+                suppressNextDesktopClickRef.current = false;
+                return;
+            }
 
-    const [desktop, setDesktop] = useState(icons);
+            const target = event.target as HTMLElement;
+            if (!target.closest("[data-desktop-icon-root='true']")) {
+                clearSelection();
+            }
+        },
+        [clearSelection, closeContextMenu, setStartMenuVisible],
+    );
 
-    const newWindows = windows.map((window) => (
-        <Window
-            key={window.id}
-            title={window.title}
-            onClose={() => closeWindow(window.id)}
-            initialPosition={window.initialPosition}
-            zIndex={windowZIndexes[window.id] ?? 10}
-            onMouseDown={() => updateWindowZIndex(window.id)}
-        >
-            {windowComponents[window.title]()}
-        </Window>
-    ));
+    const handleDesktopContextMenu = useCallback(
+        (event: MouseEvent<HTMLDivElement>) => {
+            setStartMenuVisible(false);
+            openContextMenu(event);
+        },
+        [openContextMenu, setStartMenuVisible],
+    );
 
-    useEffect(() => {
-        setWindowComponents(newWindows);
-    }, [windows]);
+    const handleIconPointerDown = useCallback(
+        (itemId: string) => () => {
+            if (!isSelected(itemId)) {
+                selectOnly(itemId);
+            }
+        },
+        [isSelected, selectOnly],
+    );
 
-    if (!weather) {
+    const handleDesktopPointerDown = useCallback(
+        (event: PointerEvent<HTMLDivElement>) => {
+            onPointerDown(event);
+
+            if (event.button !== 0) {
+                pointerDownPositionRef.current = null;
+                return;
+            }
+
+            const target = event.target as HTMLElement;
+            const canStartMarquee =
+                !target.closest("[data-desktop-icon-root='true']") &&
+                !target.closest(".desktop-window-shell");
+
+            if (!canStartMarquee) {
+                pointerDownPositionRef.current = null;
+                return;
+            }
+
+            suppressNextDesktopClickRef.current = false;
+            pointerDownPositionRef.current = {
+                x: event.clientX,
+                y: event.clientY,
+            };
+        },
+        [onPointerDown],
+    );
+
+    const handleDesktopPointerMove = useCallback(
+        (event: PointerEvent<HTMLDivElement>) => {
+            onPointerMove(event);
+
+            const start = pointerDownPositionRef.current;
+            if (!start) {
+                return;
+            }
+
+            const deltaX = Math.abs(event.clientX - start.x);
+            const deltaY = Math.abs(event.clientY - start.y);
+            if (
+                deltaX >= MARQUEE_DRAG_THRESHOLD_PX ||
+                deltaY >= MARQUEE_DRAG_THRESHOLD_PX
+            ) {
+                suppressNextDesktopClickRef.current = true;
+            }
+        },
+        [onPointerMove],
+    );
+
+    if (!weather.data) {
         return <div className="bg-desktop"></div>;
     }
 
     return (
         <div
+            ref={desktopRef}
             className="bg-desktop sm:pl-1 h-full w-full grid grid-cols-4
-        sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 grid-rows-6
-        md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row"
-            onClick={() => setIsMenuVisible(false)}
+        sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 pt-2 pb-10 box-border grid-rows-6
+        md:grid-rows-6 lg:grid-rows-8 lg:grid-flow-col sm:grid-flow-row relative"
+            onClick={handleDesktopClick}
+            onPointerDown={handleDesktopPointerDown}
+            onPointerMove={handleDesktopPointerMove}
+            onContextMenu={handleDesktopContextMenu}
         >
             <img
                 src={Wallpaper}
                 alt="wallpaper"
                 className="fixed m-auto top-1/3 left-0 right-0 w-60 md:w-80 lg:w-96 select-none pointer-events-none z-0"
             />
-            {desktop}
-            {newWindows}
+            <DesktopGrid
+                desktopSlotOrder={desktopSlotOrder}
+                assignments={assignments}
+                registry={registry}
+                trashCount={trashCount}
+                onMove={handleMove}
+                onDrop={onDrop}
+                onTrashClick={handleTrashClick}
+                onIconClick={handleIconClick}
+                onIconPointerDown={handleIconPointerDown}
+                selectedItemIds={selectedItemIds}
+            />
+            <DesktopSelectionMarquee
+                rect={marqueeActive ? selectionRect : null}
+            />
+            <DesktopMultiDragPreview
+                assignments={assignments}
+                desktopSlotOrder={desktopSlotOrder}
+                registry={registry}
+            />
+            <DesktopWindows
+                openWindows={openWindows}
+                closeWindow={closeWindow}
+                windowZIndexes={windowZIndexes}
+                bringToFront={bringToFront}
+                weather={weather.data}
+            />
+            {contextMenuPosition ? (
+                <DesktopContextMenu
+                    position={contextMenuPosition}
+                    hasOpenWindows={hasOpenWindows}
+                    onAction={runAction}
+                />
+            ) : null}
         </div>
     );
-};
-
-export const desktopIcons: {
-    icon: string;
-    name: ContentType;
-    type?: IconType;
-    onClick?: VoidFunction;
-    hidden?: boolean;
-}[] = [
-    {
-        icon: GlobeIcon,
-        name: "About\u00A0me",
-    },
-    {
-        icon: ProjectsIcon,
-        name: "Projects",
-    },
-    {
-        icon: WeatherIcon,
-        name: "Weather",
-    },
-    {
-        icon: GitHubIcon,
-        name: "GitHub",
-        type: "link",
-        onClick: () => window.open("https://github.com/gglooo"),
-        hidden: true,
-    },
-    {
-        icon: LinkedInIcon,
-        name: "LinkedIn",
-        type: "link",
-        onClick: () =>
-            window.open("https://www.linkedin.com/in/jan-glos-21007b202/"),
-        hidden: true,
-    },
-];
-
-const placeFromBin = (trashContent: JSX.Element[], desktop: JSX.Element[]) => {
-    const newDesktop = [];
-    let trashIndex = 0;
-
-    for (let i = 0; i < desktop.length; i++) {
-        if (
-            desktop[i].props.children === undefined &&
-            trashContent.length > trashIndex &&
-            desktop[i].props.index !== "0" // dont overwrite the bin
-        ) {
-            newDesktop.push(trashContent[trashIndex++]);
-        } else {
-            newDesktop.push(desktop[i]);
-        }
-    }
-
-    return newDesktop;
 };
 
 export default Desktop;

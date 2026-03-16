@@ -1,27 +1,56 @@
-import { ContentType } from "../types/ContentType";
-
 interface StartButtonProps {
-    icon: string;
-    name: ContentType;
-    onClick: (event: any) => void;
+    label?: string;
+    name?: string;
+    icon?: string;
+    onClick?: () => void;
+    onMouseEnter?: () => void;
+    hasSubmenu?: boolean;
+    isFocused?: boolean;
+    disabled?: boolean;
+    className?: string;
 }
 
-export const StartButton = ({ icon, name, onClick }: StartButtonProps) => {
+export const StartButton = ({
+    label,
+    name,
+    icon,
+    onClick,
+    onMouseEnter,
+    hasSubmenu = false,
+    isFocused = false,
+    disabled = false,
+    className = "",
+}: StartButtonProps) => {
+    const resolvedLabel = label ?? name ?? "";
+
     return (
-        <div
-            className="flex flex-col hover:bg-blue hover:text-white py-3 pr-8 pl-2 select-none cursor-pointer"
-            onClick={onClick}
+        <button
+            type="button"
+            role="menuitem"
+            aria-label={resolvedLabel}
+            aria-haspopup={hasSubmenu ? "menu" : undefined}
+            aria-disabled={disabled}
+            onClick={disabled ? undefined : onClick}
+            onMouseEnter={onMouseEnter}
+            disabled={disabled}
+            className={
+                `${isFocused ? "bg-blue text-white" : "bg-window text-black"} ` +
+                "w-full min-h-9 px-2 py-1 text-left font-main text-lg " +
+                "flex items-center gap-2 select-none disabled:opacity-50 " +
+                "disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-1 " +
+                "focus-visible:outline-black " +
+                className
+            }
         >
-            <div className="grid grid-rows-1 grid-cols-2 items-center text-center">
-                <div className="w-full h-full flex items-center justify-left">
-                    <img src={icon} width={40}></img>
-                </div>
-                <div className="w-full h-full flex items-center justify-left">
-                    <p className="first-letter:underline font-main text-xl ml-2">
-                        {name}
-                    </p>
-                </div>
-            </div>
-        </div>
+            <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                {icon ? <img src={icon} alt="" className="w-5 h-5" /> : null}
+            </span>
+            <span className="first-letter:underline flex-1 truncate">
+                {resolvedLabel}
+            </span>
+            {hasSubmenu ? <span aria-hidden="true">&gt;</span> : null}
+        </button>
     );
 };
+
+export default StartButton;

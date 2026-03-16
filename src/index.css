@@ -1,9 +1,155 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@font-face {
+    font-family: "W95font";
+    src: url("/W95font.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "W95font";
+    src: url("/W95font-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family:
+        "W95font", "MS Sans Serif", "Microsoft Sans Serif", "Segoe UI",
+        "Tahoma", "Geneva", sans-serif;
+}
 
 .body {
     height: auto;
     width: auto;
     overflow: hidden;
+}
+
+/* make the lynch head gradually get bigger and bigger */
+@keyframes black-lodge-lynch {
+    from {
+        transform: scale(0.8);
+    }
+    to {
+        transform: scale(2.8);
+    }
+}
+
+@keyframes black-lodge-sway-a {
+    0% {
+        transform: translateY(0) rotate(-4deg);
+    }
+    50% {
+        transform: translateY(-16px) rotate(4deg);
+    }
+    100% {
+        transform: translateY(0) rotate(-4deg);
+    }
+}
+
+@keyframes black-lodge-sway-b {
+    0% {
+        transform: translateY(0) rotate(5deg);
+    }
+    50% {
+        transform: translateY(-12px) rotate(-3deg);
+    }
+    100% {
+        transform: translateY(0) rotate(5deg);
+    }
+}
+
+@keyframes black-lodge-sway-c {
+    0% {
+        transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+        transform: translateY(-18px) rotate(2deg);
+    }
+    100% {
+        transform: translateY(0) rotate(-2deg);
+    }
+}
+
+.black-lodge-lynch {
+    animation: black-lodge-lynch 4.8s ease-in;
+}
+
+.black-lodge-curtain-layer {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at 50% 8%,
+            rgba(255, 255, 255, 0.08),
+            transparent 42%
+        ),
+        repeating-linear-gradient(
+            90deg,
+            #260005 0 34px,
+            #7f001d 34px 60px,
+            #b1002a 60px 74px,
+            #7f001d 74px 100px
+        );
+    opacity: 0.92;
+}
+
+.black-lodge-checker-floor {
+    position: absolute;
+    inset: 42% -8% 0 -8%;
+    background: conic-gradient(
+            from 45deg,
+            #f8f8f8 0 90deg,
+            #050505 90deg 180deg,
+            #f8f8f8 180deg 270deg,
+            #050505 270deg 360deg
+        )
+        0 0 / 90px 90px;
+    transform: perspective(600px) rotateX(70deg);
+    transform-origin: top;
+    opacity: 0.95;
+}
+
+.black-lodge-placeholder {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #8f8f8f;
+    background: linear-gradient(140deg, #080808, #1a1a1a);
+    color: #e8e8e8;
+    text-align: center;
+    font-size: 12px;
+    padding: 6px;
+}
+
+.black-lodge-dancer {
+    position: absolute;
+    bottom: 52px;
+    width: clamp(96px, 16vw, 190px);
+    height: clamp(150px, 34vh, 300px);
+    transform-origin: center bottom;
+    z-index: 24;
+}
+
+.black-lodge-dancer-laura {
+    left: 14%;
+    animation: black-lodge-sway-a 1.9s ease-in-out infinite;
+}
+
+.black-lodge-dancer-arm {
+    left: 42%;
+    animation: black-lodge-sway-b 1.35s ease-in-out infinite;
+}
+
+.black-lodge-dancer-giant {
+    right: 12%;
+    width: clamp(120px, 19vw, 230px);
+    height: clamp(190px, 40vh, 360px);
+    animation: black-lodge-sway-c 2.3s ease-in-out infinite;
 }

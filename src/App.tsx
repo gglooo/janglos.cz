@@ -1,11 +1,13 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Portfolio from "./pages/Portfolio";
-import { RecoilRoot } from "recoil";
+
+const queryClient = new QueryClient();
 
 function App() {
     return (
-        <RecoilRoot>
+        <QueryClientProvider client={queryClient}>
             <Portfolio />
-        </RecoilRoot>
+        </QueryClientProvider>
     );
 }
 

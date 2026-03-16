@@ -128,3 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+modernization_plan.json
+desktop_state_refactor_plan.json
