@@ -1,5 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useCallback, useEffect, useRef, useState } from "react";
+import lynchHeadPath from "../../assets/black-lodge/lynch.png";
 import soundtrackPath from "../../assets/black-lodge/black-lodge-theme.mp3";
 import {
     BLACK_LODGE_CHARACTERS,
@@ -10,7 +11,6 @@ import { BlackLodgeScene3D } from "./BlackLodgeScene3D";
 type Scene = "intro" | "lodge" | "dance";
 
 const INTRO_DURATION_MS = 4500;
-const LYNCH_HEAD_PATH = "src/assets/black-lodge/lynch.png";
 
 const ACTIVE_CHARACTERS: BlackLodgeCharacter[] = BLACK_LODGE_CHARACTERS.filter(
     (character) => character.enabled,
@@ -36,7 +36,7 @@ const IntroScene = ({ scene }: { scene: Scene }) => (
         <div className="absolute inset-0 flex items-center justify-center">
             <div className="black-lodge-lynch h-56 w-56">
                 <img
-                    src={LYNCH_HEAD_PATH}
+                    src={lynchHeadPath}
                     alt="David Lynch"
                     className="h-full w-full rounded-full object-cover"
                 />

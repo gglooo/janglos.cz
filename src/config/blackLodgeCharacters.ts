@@ -1,4 +1,6 @@
 import { CameraProps } from "@react-three/fiber";
+import bobPath from "../assets/black-lodge/bob.glb?url";
+import logLadyPath from "../assets/black-lodge/log_lady.glb?url";
 
 export type CharacterId = "log-lady" | "bob";
 
@@ -15,7 +17,7 @@ export const BLACK_LODGE_CHARACTERS: BlackLodgeCharacter[] = [
     {
         id: "log-lady",
         name: "Log Lady",
-        modelPath: "/src/assets/black-lodge/log_lady.glb",
+        modelPath: logLadyPath,
         enabled: true,
         containerClassName:
             "absolute z-10 h-56 w-44 sm:h-72 sm:w-56 bottom-12 left-1/2 -translate-x-1/2",
@@ -24,7 +26,7 @@ export const BLACK_LODGE_CHARACTERS: BlackLodgeCharacter[] = [
     {
         id: "bob",
         name: "Bob",
-        modelPath: "/src/assets/black-lodge/bob.glb",
+        modelPath: bobPath,
         enabled: true,
         containerClassName:
             "absolute z-10 h-56 w-44 sm:h-72 sm:w-56 bottom-10 left-[22%] -translate-x-1/2",
