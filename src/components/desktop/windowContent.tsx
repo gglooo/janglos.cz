@@ -1,5 +1,4 @@
 import type { ContentType } from "../../types/ContentType";
-import type { WeatherResponse } from "../../types/WeatherResponse";
 import About from "../About";
 import { AsciiWindow } from "../AsciiWindow";
 import { BlackLodgeWindow } from "../black-lodge/BlackLodgeWindow";
@@ -11,13 +10,11 @@ import Weather from "../Weather";
 
 interface WindowContentParams {
     title: ContentType;
-    weather: WeatherResponse;
     onClose: () => void;
 }
 
 export const renderWindowContent = ({
     title,
-    weather,
     onClose,
 }: WindowContentParams) => {
     switch (title) {
@@ -26,7 +23,7 @@ export const renderWindowContent = ({
         case "Projects":
             return <Projects />;
         case "Weather":
-            return <Weather data={weather} />;
+            return <Weather />;
         case "ASCII Art":
             return <AsciiWindow />;
         case "The Black Lodge":

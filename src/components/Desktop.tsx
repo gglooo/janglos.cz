@@ -179,10 +179,6 @@ export const Desktop = () => {
         [onPointerMove],
     );
 
-    if (!weather.data) {
-        return <div className="bg-desktop"></div>;
-    }
-
     return (
         <div
             ref={desktopRef}
@@ -224,7 +220,6 @@ export const Desktop = () => {
                 closeWindow={closeWindow}
                 windowZIndexes={windowZIndexes}
                 bringToFront={bringToFront}
-                weather={weather.data}
             />
             {contextMenuPosition ? (
                 <DesktopContextMenu

@@ -1,7 +1,6 @@
-import Window from "../Window";
 import type { ContentType } from "../../types/ContentType";
-import type { WeatherResponse } from "../../types/WeatherResponse";
 import type { WindowPlacementBounds } from "../../utils/windowPlacement";
+import Window from "../Window";
 import { renderWindowContent } from "./windowContent";
 
 interface DesktopWindowData {
@@ -16,7 +15,6 @@ interface DesktopWindowsProps {
     closeWindow: (id: number) => void;
     windowZIndexes: Record<number, number>;
     bringToFront: (windowId: number) => void;
-    weather: WeatherResponse;
 }
 
 export const DesktopWindows = ({
@@ -24,7 +22,6 @@ export const DesktopWindows = ({
     closeWindow,
     windowZIndexes,
     bringToFront,
-    weather,
 }: DesktopWindowsProps) => (
     <>
         {openWindows
@@ -41,7 +38,6 @@ export const DesktopWindows = ({
                 >
                     {renderWindowContent({
                         title: windowData.title,
-                        weather,
                         onClose: () => closeWindow(windowData.id),
                     })}
                 </Window>
