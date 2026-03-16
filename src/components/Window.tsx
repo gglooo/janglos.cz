@@ -3,6 +3,12 @@ import { Rnd } from "react-rnd";
 import { desktopIcons } from "../config/desktopIcons";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/appStore";
+import {
+    WindowCloseIcon,
+    WindowMaximizeIcon,
+    WindowMinimizeIcon,
+    WindowRestoreIcon,
+} from "./WindowControlIcons";
 import { ContentType, ContentTypes } from "../types/ContentType";
 import {
     getWindowSizeConstraints,
@@ -97,7 +103,7 @@ export const Window = ({
                     className="border-t-white border-l-white border-2 ml-auto bg-window mr-1 mt-1 w-7 h-7 text-center flex justify-center items-center hover:bg-grey hover:cursor-pointer"
                     aria-label={`Minimize ${title} window`}
                 >
-                    <span className="leading-none text-lg">_</span>
+                    <WindowMinimizeIcon />
                 </button>
                 {!isForcedFullscreen ? (
                     <button
@@ -108,9 +114,7 @@ export const Window = ({
                         className="border-t-white border-l-white border-2 bg-window mr-1 mt-1 w-7 h-7 text-center flex justify-center items-center hover:bg-grey hover:cursor-pointer"
                         aria-label={`${isMaximized ? "Restore" : "Maximize"} ${title} window`}
                     >
-                        <span className="leading-none text-base">
-                            {isMaximized ? "[]" : "[ ]"}
-                        </span>
+                        {isMaximized ? <WindowRestoreIcon /> : <WindowMaximizeIcon />}
                     </button>
                 ) : null}
                 <button
@@ -119,7 +123,7 @@ export const Window = ({
                     className="border-t-white border-l-white border-2 bg-window mr-2 mt-1 w-7 h-7 text-center flex justify-center items-center hover:bg-grey hover:cursor-pointer"
                     aria-label={`Close ${title} window`}
                 >
-                    <span>X</span>
+                    <WindowCloseIcon />
                 </button>
             </div>
             <div
