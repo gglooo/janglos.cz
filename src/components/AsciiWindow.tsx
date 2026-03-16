@@ -183,7 +183,7 @@ export const AsciiWindow = () => {
             {error ? (
                 <p className="font-main text-base text-red-700">{error}</p>
             ) : null}
-            {isGenerating ? (
+            {isGenerating && !hasAsciiOutput ? (
                 <p className="font-main text-base">
                     Rendering ASCII preview...
                 </p>

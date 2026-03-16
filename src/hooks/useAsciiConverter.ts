@@ -84,6 +84,7 @@ export const useAsciiConverter = (options?: UseAsciiConverterOptions) => {
     const asciiQuery = useQuery<string>({
         queryKey: ["ascii-art", source.sourceKey, settings],
         enabled: Boolean(source.image && source.sourceKey),
+        placeholderData: (previousData) => previousData,
         queryFn: () => {
             if (!source.image) {
                 throw new Error("No image selected.");
